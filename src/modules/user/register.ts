@@ -1,10 +1,12 @@
-import { Arg, Mutation, Query, Resolver } from 'type-graphql';
+import { Arg, Authorized, Mutation, Query, Resolver } from 'type-graphql';
 import { User } from '../../entity/User';
 import bcrypt from 'bcrypt';
 import { RegisterInput } from './register/RegisterInput';
+import { sendEmail, createConfirmationUrl } from '../../utils/mail';
 
 @Resolver()
 export default class RegisterResolver {
+	@Authorized()
 	@Query(() => String)
 	async helloWorld() {
 		return 'Hello World!';
@@ -28,6 +30,8 @@ export default class RegisterResolver {
 			email,
 			password: hashPassword,
 		}).save();
+
+		await sendEmail(user.email, await createConfirmationUrl(user.id));
 
 		return user;
 	}

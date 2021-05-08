@@ -7,6 +7,5 @@
 	"password": "postgres",
 	"database": "lireddit",
 	"synchronize": true,
-	"logging": true,
 	"entities": ["src/entity/*.*"]
 }

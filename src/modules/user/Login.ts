@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 
 import { User } from '../../entity/User';
 import { MyContext } from '../../types/MyContext';
+import { createConfirmationUrl, sendEmail } from '../../utils/mail';
 
 @InputType()
 export class LoginInput {
@@ -30,6 +31,10 @@ export default class LoginResolver {
 		if (!match) return null;
 
 		ctx.req.session!.userId = user.id;
+
+		if (!user.verified) {
+			sendEmail(user.email, await createConfirmationUrl(user.id));
+		}
 
 		return user;
 	}

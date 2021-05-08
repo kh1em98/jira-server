@@ -7,6 +7,7 @@ import session from 'express-session';
 declare module 'express-session' {
 	export interface SessionData {
 		userId: number;
+		user: User;
 	}
 }
 
@@ -17,12 +18,20 @@ import { redis } from './redis';
 import RegisterResolver from './modules/user/register';
 import LoginResolver from './modules/user/Login';
 import MeResolver from './modules/user/Me';
+import { User } from './entity/User';
+import VerifyResolver from './modules/user/VerifyEmail';
 
 const main = async () => {
 	await createConnection();
 
 	const schema = await buildSchema({
-		resolvers: [RegisterResolver, LoginResolver, MeResolver],
+		resolvers: [RegisterResolver, LoginResolver, MeResolver, VerifyResolver],
+		authChecker: ({ context: { req } }) => {
+			if (!req.session.userId) {
+				return false;
+			}
+			return true; // or false if access is denied
+		},
 	});
 
 	const apolloServer = new ApolloServer({ schema, context: ({ req }: any) => ({ req }) });
@@ -57,7 +66,7 @@ const main = async () => {
 
 	apolloServer.applyMiddleware({ app });
 
-	app.listen(4000, () => {
+	app.listen(4000, async () => {
 		console.log('server started on http://localhost:4000/graphql');
 	});
 };
