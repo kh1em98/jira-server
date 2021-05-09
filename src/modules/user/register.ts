@@ -6,12 +6,6 @@ import { sendEmail, createConfirmationUrl } from '../../utils/mail';
 
 @Resolver()
 export default class RegisterResolver {
-	@Authorized()
-	@Query(() => String)
-	async helloWorld() {
-		return 'Hello World!';
-	}
-
 	@Query(() => User)
 	async getAllUser(): Promise<User[] | []> {
 		const users = await User.find();

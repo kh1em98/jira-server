@@ -14,13 +14,15 @@ export default class VerifyResolver {
 		}
 
 		const user = await User.findOne(parseInt(userId, 10));
-		console.log('user : ', user);
 
 		if (!user) {
 			return false;
 		}
 
-		await User.update({ id: parseInt(userId, 10) }, { verified: true });
+		user.verified = true;
+
+		await User.update(user.id, user);
+
 		await redis.del(token);
 
 		return true;
