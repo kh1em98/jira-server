@@ -8,7 +8,6 @@ declare module 'express-session' {
 	export interface SessionData {
 		userId: number;
 		user: User;
-		email: string;
 	}
 }
 
@@ -16,26 +15,15 @@ import connectRedis from 'connect-redis';
 import cors from 'cors';
 
 import { redis } from './redis';
-import RegisterResolver from './modules/user/register';
-import LoginResolver from './modules/user/Login';
-import MeResolver from './modules/user/Me';
 import { User } from './entity/User';
-import VerifyResolver from './modules/user/VerifyEmail';
+import { createSchema } from './utils/createSchema';
 
 const main = async () => {
 	await createConnection();
 
-	const schema = await buildSchema({
-		resolvers: [RegisterResolver, LoginResolver, MeResolver, VerifyResolver],
-		authChecker: ({ context: { req } }) => {
-			if (!req.session.userId) {
-				return false;
-			}
-			return true; // or false if access is denied
-		},
-	});
+	const schema = await createSchema();
 
-	const apolloServer = new ApolloServer({ schema, context: ({ req }: any) => ({ req }) });
+	const apolloServer = new ApolloServer({ schema, context: ({ req, res }: any) => ({ req, res }) });
 
 	const app: Application = express();
 

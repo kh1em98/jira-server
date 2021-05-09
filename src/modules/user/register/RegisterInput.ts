@@ -1,9 +1,11 @@
 import { IsEmail } from 'class-validator';
 import { Field, InputType } from 'type-graphql';
 import { IsEmailAlreadyExist } from './isEmailAlreadyExist';
+import { PasswordMixin } from '../../shared/PasswordInput';
+import { OkMixin } from '../../shared/OkMixin';
 
 @InputType()
-export class RegisterInput {
+export class RegisterInput extends OkMixin(PasswordMixin(class {})) {
 	@Field()
 	fullName: string;
 
@@ -14,7 +16,4 @@ export class RegisterInput {
 	@IsEmail()
 	@IsEmailAlreadyExist()
 	email: string;
-
-	@Field()
-	password: string;
 }
