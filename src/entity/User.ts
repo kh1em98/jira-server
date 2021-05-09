@@ -1,5 +1,6 @@
 import { Field, ObjectType, Root, UseMiddleware } from 'type-graphql';
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, OneToMany } from 'typeorm';
+// import { Task } from './Task';
 
 @ObjectType()
 @Entity()
@@ -49,4 +50,7 @@ export class User extends BaseEntity {
 		default: false,
 	})
 	verified: boolean;
+
+	// @OneToMany(() => Task, (task) => task.creator)
+	// tasksCreated: Task[];
 }

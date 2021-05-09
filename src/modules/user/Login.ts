@@ -30,7 +30,10 @@ export default class LoginResolver {
 
 		if (!match) return null;
 
-		ctx.req.session!.userId = user.id;
+		ctx.req.session.userId = user.id;
+		ctx.req.session.email = user.email;
+
+		console.log('req session : ', ctx.req.session);
 
 		if (!user.verified) {
 			sendEmail(user.email, await createConfirmationUrl(user.id));
