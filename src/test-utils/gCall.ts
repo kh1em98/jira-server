@@ -1,5 +1,5 @@
 import { graphql, GraphQLSchema } from 'graphql';
-import { createSchema } from './createSchema';
+import { createSchema } from '../utils/createSchema';
 
 interface Options {
 	source: string;

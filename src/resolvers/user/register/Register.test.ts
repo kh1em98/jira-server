@@ -2,7 +2,7 @@ import { Connection } from 'typeorm';
 import faker from 'faker';
 
 import { testConnectionDB } from '../../../test-utils/testConn';
-import { gCall } from '../../../utils/gCall';
+import { gCall } from '../../../test-utils/gCall';
 import { redis } from '../../../redis';
 import { User } from '../../../entity/User';
 
