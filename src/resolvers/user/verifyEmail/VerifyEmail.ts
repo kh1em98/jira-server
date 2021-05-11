@@ -1,7 +1,7 @@
 import { Arg, Mutation, Resolver } from 'type-graphql';
 
-import { User } from '../../entity/User';
-import { redis } from '../../redis';
+import { User } from '../../../entity/User';
+import { redis } from '../../../redis';
 
 @Resolver()
 export default class VerifyResolver {

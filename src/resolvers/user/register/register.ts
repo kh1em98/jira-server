@@ -1,8 +1,9 @@
 import { Arg, Authorized, Mutation, Query, Resolver } from 'type-graphql';
-import { User } from '../../entity/User';
+
 import bcrypt from 'bcrypt';
-import { RegisterInput } from './register/RegisterInput';
-import { sendEmail, createConfirmationUrl } from '../../utils/mail';
+import { sendEmail, createConfirmationUrl } from '../../../utils/mail';
+import { User } from '../../../entity/User';
+import { RegisterInput } from './RegisterInput';
 
 @Resolver()
 export default class RegisterResolver {

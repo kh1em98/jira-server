@@ -1,9 +1,9 @@
 import { Arg, Mutation, Resolver, Field, InputType, Ctx } from 'type-graphql';
 import bcrypt from 'bcrypt';
 
-import { User } from '../../entity/User';
-import { MyContext } from '../../types/MyContext';
-import { createConfirmationUrl, sendEmail } from '../../utils/mail';
+import { User } from '../../../entity/User';
+import { MyContext } from '../../../types/MyContext';
+import { createConfirmationUrl, sendEmail } from '../../../utils/mail';
 
 @InputType()
 export class LoginInput {
