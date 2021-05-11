@@ -1,10 +1,31 @@
-import { buildSchema } from 'type-graphql';
+import { graphql, GraphQLSchema } from 'graphql';
+import { createSchema } from './createSchema';
 
 interface Options {
 	source: string;
 	variableValues?: any;
+	userId?: number;
 }
 
-// export const gCall = async ({ source, variableValues }: Options) => {
+let schema: GraphQLSchema;
 
-// };
+export const gCall = async ({ source, variableValues, userId }: Options) => {
+	if (!schema) {
+		schema = await createSchema();
+	}
+	return graphql({
+		schema,
+		source,
+		variableValues,
+		contextValue: {
+			req: {
+				session: {
+					userId,
+				},
+			},
+			res: {
+				clearCookie: jest.fn(),
+			},
+		},
+	});
+};

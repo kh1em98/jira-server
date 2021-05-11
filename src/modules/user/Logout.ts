@@ -1,6 +1,5 @@
 import { Mutation, Resolver, Ctx, UseMiddleware } from 'type-graphql';
 
-import { User } from '../../entity/User';
 import { MyContext } from '../../types/MyContext';
 import { isAuth } from '../middlewares/isAuth';
 
@@ -16,8 +15,6 @@ export default class LogoutResolver {
 				}
 
 				res.clearCookie('sid');
-
-				console.log('req session after delete : ', req.session);
 
 				resolve(true);
 			});

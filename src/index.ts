@@ -1,7 +1,6 @@
 import 'reflect-metadata';
 import { ApolloServer } from 'apollo-server-express';
 import express, { Application } from 'express';
-import { buildSchema } from 'type-graphql';
 import { createConnection } from 'typeorm';
 import session from 'express-session';
 declare module 'express-session' {

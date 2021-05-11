@@ -5,7 +5,7 @@ import { PasswordMixin } from '../../shared/PasswordInput';
 import { OkMixin } from '../../shared/OkMixin';
 
 @InputType()
-export class RegisterInput extends OkMixin(PasswordMixin(class {})) {
+export class RegisterInput extends PasswordMixin(class {}) {
 	@Field()
 	fullName: string;
 
