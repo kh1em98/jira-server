@@ -1,8 +1,8 @@
 import { Mutation, Resolver, Ctx, UseMiddleware } from 'type-graphql';
 
+import { isAuth } from '../../../middlewares/isAuth.middleware';
 import { MyContext } from '../../../types/MyContext';
-import { isAuth } from '../middlewares/isAuth';
-../../middlewares/isAuth
+
 @Resolver()
 export default class LogoutResolver {
 	@UseMiddleware(isAuth)

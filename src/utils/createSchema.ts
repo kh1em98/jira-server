@@ -3,7 +3,7 @@ import { buildSchema } from 'type-graphql';
 
 export const createSchema = (): Promise<GraphQLSchema> => {
 	return buildSchema({
-		resolvers: [__dirname + '/../modules/*/*.ts'],
+		resolvers: [__dirname + '/../resolvers/**/*.resolver.ts'],
 		authChecker: ({ context: { req } }) => {
 			if (!req.session.userId) {
 				return false;
