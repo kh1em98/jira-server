@@ -41,7 +41,9 @@ describe('Me', () => {
 
 		const response = await gCall({
 			source: meQuery,
-			userId: user.id,
+			sessionData: {
+				userId: user.id,
+			},
 		});
 
 		expect(response).toMatchObject({

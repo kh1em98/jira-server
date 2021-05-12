@@ -5,7 +5,7 @@ export const PasswordMixin = <T extends ClassType>(BaseClass: T) => {
 	@InputType()
 	class PasswordInput extends BaseClass {
 		@Field()
-		@MinLength(5)
+		@MinLength(3)
 		password: string;
 	}
 	return PasswordInput;

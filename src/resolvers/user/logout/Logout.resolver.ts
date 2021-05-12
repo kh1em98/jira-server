@@ -10,11 +10,10 @@ export default class LogoutResolver {
 	async logout(@Ctx() { req, res }: MyContext): Promise<boolean> {
 		return new Promise((resolve, reject) => {
 			req.session.destroy((error) => {
+				res.clearCookie('sid');
 				if (error) {
 					reject(false);
 				}
-
-				res.clearCookie('sid');
 
 				resolve(true);
 			});
