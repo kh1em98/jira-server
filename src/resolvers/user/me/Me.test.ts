@@ -25,7 +25,6 @@ const meQuery = `
     id
     fullName
     email
-    username
   }
 }
 `;
@@ -36,7 +35,6 @@ describe('Me', () => {
 			fullName: faker.name.firstName(),
 			email: faker.internet.email(),
 			password: faker.internet.password(),
-			username: faker.internet.userName(),
 		}).save();
 
 		const response = await gCall({
@@ -52,7 +50,6 @@ describe('Me', () => {
 					id: user.id,
 					fullName: user.fullName,
 					email: user.email,
-					username: user.username,
 				},
 			},
 		});

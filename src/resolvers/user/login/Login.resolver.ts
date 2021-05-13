@@ -4,11 +4,13 @@ import bcrypt from 'bcrypt';
 import { User } from '../../../entity/User';
 import { MyContext } from '../../../types/MyContext';
 import { createConfirmationUrl, sendEmail } from '../../../utils/mail';
+import { IsEmail } from 'class-validator';
 
 @InputType()
 export class LoginInput {
 	@Field()
-	emailOrUsername: string;
+	@IsEmail()
+	email: string;
 
 	@Field()
 	password: string;
@@ -18,11 +20,11 @@ export class LoginInput {
 export default class LoginResolver {
 	@Mutation(() => User, { nullable: true })
 	async login(
-		@Arg('input') { emailOrUsername, password }: LoginInput,
+		@Arg('input') { email, password }: LoginInput,
 		@Ctx() ctx: MyContext
 	): Promise<User | null> {
 		const user = await User.findOne({
-			where: [{ email: emailOrUsername }, { username: emailOrUsername }],
+			where: { email },
 		});
 		if (!user) return null;
 

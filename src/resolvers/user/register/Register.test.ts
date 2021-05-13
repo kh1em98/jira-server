@@ -1,3 +1,4 @@
+import { invalidEmailInputTest } from './../../../shared/test/InvalidInput';
 import { Connection } from 'typeorm';
 import faker from 'faker';
 
@@ -26,19 +27,25 @@ const registerMutation = `
 		register(input: $input) {
 			id
 			fullName
-			username
 			email
 		}
 	}
 `;
 
 describe('Register', () => {
+	invalidEmailInputTest({
+		source: registerMutation,
+		otherFieldsInput: {
+			fullName: faker.name.firstName(),
+			password: faker.internet.password(),
+		},
+	});
+
 	it('create user', async () => {
 		const fakerUser = {
 			fullName: faker.name.firstName(),
 			email: faker.internet.email(),
 			password: faker.internet.password(),
-			username: faker.internet.userName(),
 		};
 
 		const response = await gCall({
@@ -53,7 +60,6 @@ describe('Register', () => {
 				register: {
 					fullName: fakerUser.fullName,
 					email: fakerUser.email,
-					username: fakerUser.username,
 				},
 			},
 		});

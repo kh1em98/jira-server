@@ -22,10 +22,6 @@ export class User extends BaseEntity {
 	})
 	isFacebookAccount: boolean;
 
-	@Field()
-	@Column()
-	username: string;
-
 	@Column()
 	password: string;
 
