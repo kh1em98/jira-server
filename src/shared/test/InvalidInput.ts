@@ -20,7 +20,7 @@ export const invalidEmailInputTest = ({
 				},
 			});
 
-			expect(response).toMatchObject({
+			expect(response.errors![0]).toMatchObject({
 				message: 'Argument Validation Error',
 			});
 		});
