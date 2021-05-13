@@ -31,7 +31,7 @@ const meQuery = `
 `;
 
 describe('Me', () => {
-	it('get user', async () => {
+	it('get current user', async () => {
 		const user = await User.create({
 			fullName: faker.name.firstName(),
 			email: faker.internet.email(),

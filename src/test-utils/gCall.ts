@@ -22,11 +22,11 @@ export const gCall = async ({ source, variableValues, sessionData }: Options) =>
 			req: {
 				session: {
 					...sessionData,
-					destroy: jest.fn(),
+					destroy: jest.fn((cb) => cb(null)),
 				},
 			},
 			res: {
-				clearCookie: jest.fn(),
+				clearCookie: () => {},
 			},
 		},
 	});

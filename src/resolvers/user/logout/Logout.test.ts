@@ -34,8 +34,6 @@ describe('Log out', () => {
 			},
 		});
 
-		console.log(`response`, response);
-
 		expect(response).toMatchObject({
 			data: {
 				logout: true,
