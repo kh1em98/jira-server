@@ -39,7 +39,9 @@
     "eslint": "7.7.0",
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-import": "^2.20.1",
+    "husky": ">=6",
     "jest": "^26.6.3",
+    "lint-staged": "^11.0.0",
     "prettier": "^2.3.0",
     "ts-jest": "^26.5.6",
     "ts-node": "^9.1.1",
@@ -51,6 +53,11 @@
     "db:setup": "ts-node ./src/test-utils/setup.ts",
     "test": "npm run db:setup && jest --forceExit --detectOpenHandles",
     "lint": "eslint \"src/**/*.ts\" \"tests/**/*.ts\" --fix",
-    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --fix",
+    "*.ts": "prettier --write"
   }
 }
