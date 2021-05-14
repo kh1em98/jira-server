@@ -11,6 +11,6 @@ export const testConnectionDB = async (needDrop = false) => {
     database: 'typegraphql-example-test',
     synchronize: needDrop,
     dropSchema: needDrop,
-    entities: [__dirname + '/../entity/*.*'],
+    entities: ['./src/entity/*.*'],
   });
 };

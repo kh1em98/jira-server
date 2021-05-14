@@ -1,6 +1,6 @@
+import { createSchema } from './../../src/utils/createSchema';
+import { SessionData } from './../../src/types/SessionData';
 import { graphql, GraphQLSchema } from 'graphql';
-import { SessionData } from 'src/types/SessionData';
-import { createSchema } from 'src/utils/createSchema';
 
 interface Options {
   source: string;
