@@ -57,7 +57,15 @@
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.js": "eslint --cache --fix",
-    "*.ts": "prettier --write"
+    "*.ts": [
+      "npm run lint",
+      "npm run format",
+      "git add ."
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }
