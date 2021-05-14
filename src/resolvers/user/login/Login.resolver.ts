@@ -8,36 +8,36 @@ import { IsEmail } from 'class-validator';
 
 @InputType()
 export class LoginInput {
-	@Field()
-	@IsEmail()
-	email: string;
+  @Field()
+  @IsEmail()
+  email: string;
 
-	@Field()
-	password: string;
+  @Field()
+  password: string;
 }
 
 @Resolver()
 export default class LoginResolver {
-	@Mutation(() => User, { nullable: true })
-	async login(
-		@Arg('input') { email, password }: LoginInput,
-		@Ctx() ctx: MyContext
-	): Promise<User | null> {
-		const user = await User.findOne({
-			where: { email },
-		});
-		if (!user) return null;
+  @Mutation(() => User, { nullable: true })
+  async login(
+    @Arg('input') { email, password }: LoginInput,
+    @Ctx() ctx: MyContext,
+  ): Promise<User | null> {
+    const user = await User.findOne({
+      where: { email },
+    });
+    if (!user) return null;
 
-		const match = await bcrypt.compare(password, user.password);
+    const match = await bcrypt.compare(password, user.password);
 
-		if (!match) return null;
+    if (!match) return null;
 
-		ctx.req.session.userId = user.id;
+    ctx.req.session.userId = user.id;
 
-		if (!user.verified) {
-			sendEmail(user.email, await createConfirmationUrl(user.id));
-		}
+    if (!user.verified) {
+      sendEmail(user.email, await createConfirmationUrl(user.id));
+    }
 
-		return user;
-	}
+    return user;
+  }
 }

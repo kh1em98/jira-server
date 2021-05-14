@@ -2,13 +2,13 @@ import { GraphQLSchema } from 'graphql';
 import { buildSchema } from 'type-graphql';
 
 export const createSchema = (): Promise<GraphQLSchema> => {
-	return buildSchema({
-		resolvers: [__dirname + '/../resolvers/**/*.resolver.ts'],
-		authChecker: ({ context: { req } }) => {
-			if (!req.session.userId) {
-				return false;
-			}
-			return true; // or false if access is denied
-		},
-	});
+  return buildSchema({
+    resolvers: [__dirname + '/../resolvers/**/*.resolver.ts'],
+    authChecker: ({ context: { req } }) => {
+      if (!req.session.userId) {
+        return false;
+      }
+      return true; // or false if access is denied
+    },
+  });
 };

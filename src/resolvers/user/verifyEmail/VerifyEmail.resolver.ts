@@ -5,26 +5,26 @@ import { redis } from '../../../redis';
 
 @Resolver()
 export default class VerifyResolver {
-	@Mutation(() => Boolean)
-	async verify(@Arg('token') token: string): Promise<boolean> {
-		const userId = await redis.get(token);
+  @Mutation(() => Boolean)
+  async verify(@Arg('token') token: string): Promise<boolean> {
+    const userId = await redis.get(token);
 
-		if (!userId) {
-			return false;
-		}
+    if (!userId) {
+      return false;
+    }
 
-		const user = await User.findOne(parseInt(userId, 10));
+    const user = await User.findOne(parseInt(userId, 10));
 
-		if (!user) {
-			return false;
-		}
+    if (!user) {
+      return false;
+    }
 
-		user.verified = true;
+    user.verified = true;
 
-		await User.update(user.id, user);
+    await User.update(user.id, user);
 
-		await redis.del(token);
+    await redis.del(token);
 
-		return true;
-	}
+    return true;
+  }
 }
