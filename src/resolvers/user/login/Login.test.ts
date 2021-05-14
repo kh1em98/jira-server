@@ -6,8 +6,10 @@ import { gCall } from '../../../test-utils/gCall';
 import { redis } from '../../../redis';
 import { User } from '../../../entity/User';
 import { invalidEmailInputTest } from '../../../shared/test/InvalidInput';
+import bcrypt from 'bcrypt';
 
 let conn: Connection;
+let passwordBeforeHash: string;
 let testUser: User;
 
 beforeAll(async () => {
@@ -17,10 +19,13 @@ beforeAll(async () => {
 		await redis.connect();
 	}
 
+	passwordBeforeHash = faker.internet.password();
+	const hashPassword = await bcrypt.hash(passwordBeforeHash, 10);
+
 	testUser = await User.create({
 		fullName: faker.name.firstName(),
 		email: faker.internet.email(),
-		password: faker.internet.password(),
+		password: hashPassword,
 	}).save();
 });
 
@@ -89,7 +94,7 @@ describe('Login', () => {
 			variableValues: {
 				input: {
 					email: testUser.email,
-					password: testUser.password,
+					password: passwordBeforeHash,
 				},
 			},
 		});
