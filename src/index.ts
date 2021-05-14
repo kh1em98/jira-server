@@ -20,6 +20,8 @@ import { createSchema } from './utils/createSchema';
 const main = async () => {
   await createConnection();
 
+  console.log('Hay lam dit me may');
+
   const schema = await createSchema();
 
   const apolloServer = new ApolloServer({
