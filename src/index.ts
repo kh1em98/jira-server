@@ -17,11 +17,13 @@ import cors from 'cors';
 import { redis } from './redis';
 import { User } from './entity/User';
 import { createSchema } from './utils/createSchema';
+import { PasetoMaker } from './token/PasetoMaker';
 
 const main = async () => {
   await createConnection();
 
-  console.log('Hay lam dit me may');
+  const pasetoMaker = new PasetoMaker();
+  pasetoMaker.getSymmetricKey();
 
   const schema = await createSchema();
 

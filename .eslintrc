@@ -12,6 +12,6 @@
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "no-console": 1 // Remember, this means error!
+    "no-console": 1
   }
 }
