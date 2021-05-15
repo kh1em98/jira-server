@@ -1,5 +1,6 @@
 import { Arg, Mutation, Resolver } from 'type-graphql';
 
+import { PREFIX_VERIFY_EMAIL } from './../../../utils/mail';
 import { User } from '../../../entity/User';
 import { redis } from '../../../redis';
 
@@ -7,7 +8,7 @@ import { redis } from '../../../redis';
 export default class VerifyResolver {
   @Mutation(() => Boolean)
   async verify(@Arg('token') token: string): Promise<boolean> {
-    const userId = await redis.get(token);
+    const userId = await redis.get(`${PREFIX_VERIFY_EMAIL}token`);
 
     if (!userId) {
       return false;

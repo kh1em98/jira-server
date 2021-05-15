@@ -1,6 +1,12 @@
 import { Field, ObjectType, Root } from 'type-graphql';
 
-import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  BaseEntity,
+  OneToMany,
+} from 'typeorm';
 
 @ObjectType()
 @Entity()
@@ -31,22 +37,9 @@ export class User extends BaseEntity {
   })
   image: string;
 
-  @Field({ nullable: true })
-  nickName(@Root() user: User): string {
-    return `${user.fullName}${Math.floor(Math.random() * 100)}`;
-  }
-
-  @Column({
-    default: 0,
-  })
-  timesForceLogout: number;
-
   @Field()
   @Column({
     default: false,
   })
   verified: boolean;
-
-  // @OneToMany(() => Task, (task) => task.creator)
-  // tasksCreated: Task[];
 }

@@ -2,9 +2,11 @@ import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
 import { redis } from '../redis';
 
+export const PREFIX_VERIFY_EMAIL = 'VERIFY_EMAIL';
+
 export async function createConfirmationUrl(userId: number): Promise<string> {
   const id = uuidv4();
-  await redis.set(id, userId, 'ex', 60 * 60);
+  await redis.set(`${PREFIX_VERIFY_EMAIL}id`, userId, 'ex', 60 * 60);
 
   return id;
 }
