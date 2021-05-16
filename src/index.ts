@@ -17,7 +17,6 @@ import cors from 'cors';
 import { redis } from './redis';
 import { User } from './entity/User';
 import { createSchema } from './utils/createSchema';
-import { PasetoMaker } from './token/PasetoMaker';
 import { createUserLoader } from './utils/createUserLoader';
 
 const main = async () => {
