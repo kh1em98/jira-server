@@ -8,7 +8,7 @@ import { redis } from '../../../redis';
 export default class VerifyResolver {
   @Mutation(() => Boolean)
   async verify(@Arg('token') token: string): Promise<boolean> {
-    const userId = await redis.get(`${PREFIX_VERIFY_EMAIL}token`);
+    const userId = await redis.get(`${PREFIX_VERIFY_EMAIL}${token}`);
 
     if (!userId) {
       return false;

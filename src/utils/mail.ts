@@ -6,7 +6,7 @@ export const PREFIX_VERIFY_EMAIL = 'VERIFY_EMAIL';
 
 export async function createConfirmationUrl(userId: number): Promise<string> {
   const id = uuidv4();
-  await redis.set(`${PREFIX_VERIFY_EMAIL}id`, userId, 'ex', 60 * 60);
+  await redis.set(`${PREFIX_VERIFY_EMAIL}${id}`, userId, 'ex', 60 * 60);
 
   return id;
 }

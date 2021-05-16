@@ -1,4 +1,5 @@
-import { Field, ObjectType, Root } from 'type-graphql';
+import { Field, ObjectType } from 'type-graphql';
+import { Task } from './Task';
 
 import {
   Entity,
@@ -6,6 +7,8 @@ import {
   Column,
   BaseEntity,
   OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @ObjectType()
@@ -20,7 +23,7 @@ export class User extends BaseEntity {
   fullName: string;
 
   @Field()
-  @Column()
+  @Column({ type: 'varchar', unique: true })
   email: string;
 
   @Column({
@@ -37,9 +40,20 @@ export class User extends BaseEntity {
   })
   image: string;
 
+  @OneToMany(() => Task, (task) => task.user)
+  tasks: Task[];
+
   @Field()
   @Column({
     default: false,
   })
   verified: boolean;
+
+  @Field(() => String)
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Field(() => String)
+  @UpdateDateColumn()
+  updatedAt: Date;
 }

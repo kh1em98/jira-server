@@ -25,7 +25,7 @@ export default class RegisterResolver {
       password: hashPassword,
     }).save();
 
-    await sendEmail(user.email, await createConfirmationUrl(user.id));
+    sendEmail(user.email, await createConfirmationUrl(user.id));
 
     return user;
   }

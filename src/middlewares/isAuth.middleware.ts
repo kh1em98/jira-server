@@ -10,6 +10,7 @@ export const isAuth: MiddlewareFn<MyContext> = async (
     res.clearCookie('sid');
     throw new Error('Not authenticated');
   }
+
   return next();
 };
 
