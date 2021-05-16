@@ -18,18 +18,20 @@ import { redis } from './redis';
 import { User } from './entity/User';
 import { createSchema } from './utils/createSchema';
 import { PasetoMaker } from './token/PasetoMaker';
+import { createUserLoader } from './utils/createUserLoader';
 
 const main = async () => {
   await createConnection();
-
-  const pasetoMaker = new PasetoMaker();
-  pasetoMaker.getSymmetricKey();
-
   const schema = await createSchema();
 
   const apolloServer = new ApolloServer({
     schema,
-    context: ({ req, res }: any) => ({ req, res }),
+    context: ({ req, res }: any) => ({
+      req,
+      res,
+      userLoader: createUserLoader(),
+    }),
+    tracing: true,
   });
 
   const app: Application = express();

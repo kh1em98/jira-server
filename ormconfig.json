@@ -7,5 +7,6 @@
   "password": "khiem",
   "database": "social",
   "synchronize": true,
+  "logging": true,
   "entities": ["src/entity/*.*"]
 }
