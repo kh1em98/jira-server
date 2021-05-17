@@ -19,8 +19,17 @@ import { User } from './entity/User';
 import { createSchema } from './utils/createSchema';
 import { createUserLoader } from './utils/createUserLoader';
 
+const connectDbWithRetry = () => {
+  try {
+    createConnection();
+  } catch (error) {
+    console.error(error);
+    setTimeout(connectDbWithRetry, 5000);
+  }
+};
+
 const main = async () => {
-  await createConnection();
+  connectDbWithRetry();
   const schema = await createSchema();
 
   const apolloServer = new ApolloServer({
