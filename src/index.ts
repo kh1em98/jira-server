@@ -26,6 +26,7 @@ import {
   DB_PASSWORD,
   DB_NAME,
 } from './config/vars';
+import { BaseRedisCache } from 'apollo-server-cache-redis';
 
 const connectDbWithRetry = () => {
   createConnection({
@@ -61,6 +62,10 @@ const main = async () => {
       req,
       res,
       userLoader: createUserLoader(),
+    }),
+    // Trong trường hợp server có nhiều instance, cần có shared cache để instance này có thể lấy cache của instance kia
+    cache: new BaseRedisCache({
+      client: redis,
     }),
     tracing: true,
   });
