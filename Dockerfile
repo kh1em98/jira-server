@@ -4,10 +4,11 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm install
+RUN NODE_ENV=docker-development yarn global add typescript nodemon ts-node
+RUN NODE_ENV=docker-development yarn
 
 # Development
-CMD ["npm", "run", "dev"]
+CMD ["yarn", "dev"]
 
 # Production
 # RUN npm install -g pm2

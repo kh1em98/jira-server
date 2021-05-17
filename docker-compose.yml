@@ -1,14 +1,16 @@
 version: '3.4'
 
 services:
-  app:
-    image: social-api
+  social-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - ./:/app # mount từ môi trường gốc vào trong để nếu các bạn thay đổi code thì bên trong sẽ tự động cập nhật
     environment: # phần này ta định nghĩa ở file .env nhé
-      - DB_HOST=${DB_HOST}
+      - DB_HOST=${DD_DB_HOST}
       - DB_NAME=${DB_NAME}
-      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_HOST=${DD_REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - PORT=${PORT}
     ports:
@@ -19,13 +21,17 @@ services:
       - db
 
   db:
-    image: mongo
+    image: postgres
+    environment:
+      - POSTGRES_USER=khiem
+      - POSTGRES_PASSWORD=khiem
+      - POSTGRES_DB=social
     volumes:
       - .docker/data/db:/data/db
     restart: unless-stopped
 
   redis:
-    image: redis:5-alpine
+    image: redis:6.2.3-alpine
     volumes:
       - .docker/data/redis:/data
     restart: unless-stopped
