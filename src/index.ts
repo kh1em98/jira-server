@@ -18,7 +18,14 @@ import { redis } from './redis';
 import { User } from './entity/User';
 import { createSchema } from './utils/createSchema';
 import { createUserLoader } from './utils/createUserLoader';
-import { DB_HOST, DB_PORT } from './config/vars';
+import { PORT } from './config/vars';
+import {
+  DB_HOST,
+  DB_PORT,
+  DB_USERNAME,
+  DB_PASSWORD,
+  DB_NAME,
+} from './config/vars';
 
 const connectDbWithRetry = () => {
   createConnection({
@@ -26,9 +33,9 @@ const connectDbWithRetry = () => {
     type: 'postgres',
     host: DB_HOST || '127.0.0.1',
     port: DB_PORT ? parseInt(DB_PORT, 10) : 5432,
-    username: 'khiem',
-    password: 'khiem',
-    database: 'social',
+    username: DB_USERNAME || 'khiem',
+    password: DB_PASSWORD || 'khiem',
+    database: DB_NAME,
     synchronize: true,
     logging: true,
     entities: ['src/entity/*.*'],
@@ -88,8 +95,8 @@ const main = async () => {
 
   apolloServer.applyMiddleware({ app });
 
-  app.listen(4000, async () => {
-    console.log('server started on http://localhost:4000/graphql');
+  app.listen(PORT, async () => {
+    console.log(`server started on http://localhost:${PORT}/graphql`);
   });
 };
 

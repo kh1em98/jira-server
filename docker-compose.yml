@@ -8,9 +8,9 @@ services:
     volumes:
       - ./:/app # mount từ môi trường gốc vào trong để nếu các bạn thay đổi code thì bên trong sẽ tự động cập nhật
     environment: # phần này ta định nghĩa ở file .env nhé
-      - DB_HOST=${DD_DB_HOST}
+      - DB_HOST=${DOCKER_DEV_DB_HOST}
       - DB_NAME=${DB_NAME}
-      - REDIS_HOST=${DD_REDIS_HOST}
+      - REDIS_HOST=${DOCKER_DEV_REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - PORT=${PORT}
     ports:
