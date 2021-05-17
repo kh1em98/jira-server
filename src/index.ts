@@ -18,9 +18,34 @@ import { redis } from './redis';
 import { User } from './entity/User';
 import { createSchema } from './utils/createSchema';
 import { createUserLoader } from './utils/createUserLoader';
+import { DB_HOST, DB_PORT } from './config/vars';
+
+const connectDbWithRetry = () => {
+  createConnection({
+    name: 'default',
+    type: 'postgres',
+    host: DB_HOST || '127.0.0.1',
+    port: DB_PORT ? parseInt(DB_PORT, 10) : 5432,
+    username: 'khiem',
+    password: 'khiem',
+    database: 'social',
+    synchronize: true,
+    logging: true,
+    entities: ['src/entity/*.*'],
+  })
+    .then(() => {
+      console.log('Connected to DB...');
+    })
+    .catch((error) => {
+      if (error) {
+        console.error(error);
+        setTimeout(connectDbWithRetry, 5000);
+      }
+    });
+};
 
 const main = async () => {
-  await createConnection();
+  connectDbWithRetry();
   const schema = await createSchema();
 
   const apolloServer = new ApolloServer({
