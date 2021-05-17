@@ -29,7 +29,7 @@ export default class CreateTaskResolver {
     const task = await Task.create({
       title,
       description,
-      user: ctx.req.session.user,
+      userId: ctx.req.session.userId,
     }).save();
 
     return task;
