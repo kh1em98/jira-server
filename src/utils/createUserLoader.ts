@@ -4,14 +4,20 @@ import { User } from '../entity/User';
 
 // [1, 78, 8, 9]
 // [{id: 1, username: 'tim'}, {}, {}, {}]
-export const createUserLoader = () =>
-  new DataLoader<number, User>(async (userIds) => {
-    const users = await User.findByIds(userIds as number[]);
-    const userIdToUser: Record<number, User> = {};
-    users.forEach((u) => {
-      userIdToUser[u.id] = u;
-    });
 
-    const sortedUsers = userIds.map((userId) => userIdToUser[userId]);
-    return sortedUsers;
+const batchLoadUser = async (userIds) => {
+  const users = await User.findByIds(userIds as number[]);
+
+  const userIdToUser: Record<number, User> = {};
+
+  users.forEach((user) => {
+    userIdToUser[user.id] = user;
   });
+
+  const sortedUsers = userIds.map((id) => userIdToUser[id]);
+
+  return sortedUsers;
+};
+
+export const createUserLoader = () =>
+  new DataLoader<number, User>(batchLoadUser);

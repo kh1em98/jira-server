@@ -38,7 +38,7 @@ const connectDbWithRetry = () => {
     password: DB_PASSWORD || 'khiem',
     database: DB_NAME,
     synchronize: true,
-    logging: false,
+    logging: true,
     entities: ['src/entity/*.*'],
   })
     .then(() => {
@@ -53,25 +53,6 @@ const connectDbWithRetry = () => {
 };
 
 const main = async () => {
-  function logType(target: any, key: string) {
-    const t = Reflect.getMetadata('design:type', target, key);
-    console.log(`${key} type: ${t.name}`);
-  }
-
-  function logParams(target: any, key: string) {
-    console.log({ target, key });
-  }
-
-  class Demo {
-    @logType // apply property decorator
-    public attr1: string;
-
-    @logParams
-    doSomething(p1: string, p2: number, p3: { ten: 'Khiem' }, p4: [1, 2, 3]) {
-      console.log('hihi');
-    }
-  }
-
   connectDbWithRetry();
   const schema = await createSchema();
 
