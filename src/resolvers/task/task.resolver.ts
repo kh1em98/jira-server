@@ -2,7 +2,6 @@ import {
   Arg,
   Ctx,
   FieldResolver,
-  Info,
   Mutation,
   Query,
   Resolver,
@@ -19,7 +18,7 @@ import { getRepository } from 'typeorm';
 import { doesPathsExist } from '../../utils/doesPathExist';
 
 @Resolver(Task)
-export default class CreateTaskResolver {
+export default class TaskResolver {
   @FieldResolver(() => User)
   user(@Root() task: Task, @Ctx() { userLoader }: MyContext) {
     return userLoader.load(task.userId);
