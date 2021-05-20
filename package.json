@@ -67,6 +67,7 @@
     "test": "npm run db:setup && jest --forceExit --detectOpenHandles",
     "lint": "cross-env NODE_ENV=production eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "seed": "ts-node src/seeds/createSeedData.ts",
     "prepare": "husky install"
   },
   "lint-staged": {

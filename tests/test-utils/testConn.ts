@@ -1,5 +1,3 @@
-import 'dotenv/config';
-
 import { DB_HOST, DB_PORT } from './../../src/config/vars';
 import { createConnection } from 'typeorm';
 import { DB_PASSWORD, DB_TEST_NAME, DB_USERNAME } from '../../src/config/vars';
