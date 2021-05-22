@@ -1,5 +1,5 @@
 import { Task } from '../entity/Task';
-import { createConnection, getConnection, getRepository } from 'typeorm';
+import { createConnection } from 'typeorm';
 import faker from 'faker';
 import bcrypt from 'bcrypt';
 

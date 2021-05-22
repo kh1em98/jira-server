@@ -13,7 +13,23 @@ export const isAuth: MiddlewareFn<MyContext> = async (
     throw new Error('Not authenticated');
   }
 
-  return next();
+  try {
+    const user = await User.findOne({
+      where: {
+        id: req.session.userId,
+      },
+    });
+
+    if (!user) {
+      throw new Error('Not authenticated');
+    }
+
+    req.session.user = user;
+    return next();
+  } catch (error) {
+    res.clearCookie('sid');
+    throw new Error('Not authenticated');
+  }
 };
 
 export const isVerified: MiddlewareFn<MyContext> = async (

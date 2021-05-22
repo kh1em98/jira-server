@@ -18,28 +18,10 @@ import { User } from './entity/User';
 import { createSchema } from './utils/createSchema';
 import { createUserLoader } from './utils/createUserLoader';
 import { PORT } from './config/vars';
-import {
-  DB_HOST,
-  DB_PORT,
-  DB_USERNAME,
-  DB_PASSWORD,
-  DB_NAME,
-} from './config/vars';
 import { BaseRedisCache } from 'apollo-server-cache-redis';
 
 const connectDbWithRetry = () => {
-  createConnection({
-    name: 'default',
-    type: 'postgres',
-    host: DB_HOST || '127.0.0.1',
-    port: DB_PORT ? parseInt(DB_PORT, 10) : 5432,
-    username: DB_USERNAME || 'khiem',
-    password: DB_PASSWORD || 'khiem',
-    database: DB_NAME,
-    synchronize: true,
-    logging: true,
-    entities: ['src/entity/*.*'],
-  })
+  createConnection()
     .then(() => {
       console.log('Connected to DB...');
     })
@@ -91,6 +73,7 @@ const main = async () => {
       saveUninitialized: false,
       cookie: {
         httpOnly: true,
+        sameSite: 'lax',
         secure: process.env.NODE_ENV === 'production',
         maxAge: 1000 * 60 * 60 * 24 * 2,
       },
