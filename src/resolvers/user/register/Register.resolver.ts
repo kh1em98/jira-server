@@ -7,12 +7,6 @@ import { RegisterInput } from './RegisterInput';
 
 @Resolver()
 export default class RegisterResolver {
-  @Query(() => User)
-  async getAllUser(): Promise<User[] | []> {
-    const users = await User.find({});
-    return users;
-  }
-
   @Mutation(() => User)
   async register(
     @Arg('input') { fullName, email, password }: RegisterInput,

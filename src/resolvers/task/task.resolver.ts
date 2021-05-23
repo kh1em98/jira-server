@@ -17,9 +17,11 @@ import { isAuth, isVerified } from '../../middlewares/isAuth.middleware';
 import { MyContext } from '../../types/MyContext';
 import { getRepository } from 'typeorm';
 import { PaginationArgs } from '../../shared/PaginationArgs';
+import { createBaseResolver } from '../baseQuery';
 
+const TaskBaseResolver = createBaseResolver('Tasks', Task);
 @Resolver(Task)
-export default class TaskResolver {
+export default class TaskResolver extends TaskBaseResolver {
   // Solve N+1 problem by use join
   // @Query(() => [Task])
   // @UseMiddleware(isAuth)
@@ -62,24 +64,22 @@ export default class TaskResolver {
     return userLoader.load(task.userId);
   }
 
-  @Query(() => [Task])
-  @UseMiddleware(isAuth)
-  async getAllTasks(@Args() { skip, take, reverse }: PaginationArgs) {
-    const query = getRepository(Task).createQueryBuilder('task').skip(skip);
-    if (reverse) {
-      query.orderBy('id', 'DESC');
-    }
+  // @Query(() => [Task])
+  // @UseMiddleware(isAuth)
+  // async getAllTasks(@Args() { skip, take, reverse }: PaginationArgs) {
+  //   const query = getRepository(Task).createQueryBuilder('task').skip(skip);
+  //   if (reverse) {
+  //     query.orderBy('id', 'DESC');
+  //   }
 
-    if (take) {
-      query.take(take);
-    }
+  //   if (take) {
+  //     query.take(take);
+  //   }
 
-    const tasks = await query.getMany();
+  //   const tasks = await query.getMany();
 
-    console.log('tasks : ', tasks);
-
-    return tasks;
-  }
+  //   return tasks;
+  // }
 
   @Query(() => Task)
   @UseMiddleware(isAuth)
