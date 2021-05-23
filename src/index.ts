@@ -19,6 +19,7 @@ import { createSchema } from './utils/createSchema';
 import { createUserLoader } from './utils/createUserLoader';
 import { PORT } from './config/vars';
 import { BaseRedisCache } from 'apollo-server-cache-redis';
+import { createTaskLoader } from './utils/createTaskLoader';
 
 const connectDbWithRetry = () => {
   createConnection()
@@ -43,6 +44,7 @@ const main = async () => {
       req,
       res,
       userLoader: createUserLoader(),
+      taskLoader: createTaskLoader(),
     }),
     // Trong trường hợp server có nhiều instance, cần có shared cache để instance này có thể lấy cache của instance kia
     cache: new BaseRedisCache({

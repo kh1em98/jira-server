@@ -15,11 +15,9 @@ import { Task } from '../../entity/Task';
 import { CreateTaskInput } from './createTaskInput';
 import { isAuth, isVerified } from '../../middlewares/isAuth.middleware';
 import { MyContext } from '../../types/MyContext';
-import { getRepository } from 'typeorm';
-import { PaginationArgs } from '../../shared/PaginationArgs';
-import { createBaseResolver } from '../baseQuery';
+import { queryBaseResolver } from '../baseQuery';
 
-const TaskBaseResolver = createBaseResolver('Tasks', Task);
+const TaskBaseResolver = queryBaseResolver('Task', Task);
 @Resolver(Task)
 export default class TaskResolver extends TaskBaseResolver {
   // Solve N+1 problem by use join

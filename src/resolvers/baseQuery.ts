@@ -2,7 +2,7 @@ import { PaginationArgs } from './../shared/PaginationArgs';
 import { Arg, Args, ClassType, Int, Query, Resolver } from 'type-graphql';
 import { getRepository } from 'typeorm';
 
-export function createBaseResolver<T extends ClassType>(
+export function queryBaseResolver<T extends ClassType>(
   suffix: string,
   objectTypeCls: T,
 ) {
@@ -29,6 +29,17 @@ export function createBaseResolver<T extends ClassType>(
       const items = await query.getMany();
 
       return items;
+    }
+
+    @Query((type) => objectTypeCls, { name: `get${suffix}ById` })
+    async getById(@Arg('id') id: number): Promise<T> {
+      const item = await getRepository(objectTypeCls).findOne({
+        where: {
+          id,
+        },
+      });
+
+      return item;
     }
   }
 
