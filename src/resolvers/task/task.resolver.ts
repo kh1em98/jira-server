@@ -1,10 +1,13 @@
+import { getRepository } from 'typeorm';
 import { User } from './../../entity/User';
 import {
   Arg,
   Args,
   Ctx,
+  Field,
   FieldResolver,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
   Root,
@@ -13,11 +16,31 @@ import {
 
 import { Task } from '../../entity/Task';
 import { CreateTaskInput } from './createTaskInput';
-import { isAuth, isVerified } from '../../middlewares/isAuth.middleware';
+import { isAuth } from '../../middlewares/isAuth.middleware';
 import { MyContext } from '../../types/MyContext';
 import { queryBaseResolver } from '../baseQuery';
+import { PaginationArgs } from '../../shared/PaginationArgs';
+
+enum CursorType {
+  PREVIOUS = 'previous',
+  NEXT = 'next',
+}
+
+const deserializeCursor = (cursor: string): string[] => {
+  return cursor.split('__');
+};
 
 const TaskBaseResolver = queryBaseResolver('Task', Task);
+
+@ObjectType()
+class PaginatedTasks {
+  @Field(() => [Task])
+  tasks: Task[];
+
+  @Field()
+  hasMore: boolean;
+}
+
 @Resolver(Task)
 export default class TaskResolver extends TaskBaseResolver {
   // Solve N+1 problem by use join
@@ -43,7 +66,7 @@ export default class TaskResolver extends TaskBaseResolver {
   // }
 
   @Mutation(() => Task)
-  @UseMiddleware(isAuth, isVerified)
+  @UseMiddleware(isAuth)
   async createTask(
     @Arg('input') { title, description }: CreateTaskInput,
     @Ctx() ctx: MyContext,
@@ -62,32 +85,41 @@ export default class TaskResolver extends TaskBaseResolver {
     return userLoader.load(task.userId);
   }
 
-  // @Query(() => [Task])
-  // @UseMiddleware(isAuth)
-  // async getAllTasks(@Args() { skip, take, reverse }: PaginationArgs) {
-  //   const query = getRepository(Task).createQueryBuilder('task').skip(skip);
-  //   if (reverse) {
-  //     query.orderBy('id', 'DESC');
-  //   }
-
-  //   if (take) {
-  //     query.take(take);
-  //   }
-
-  //   const tasks = await query.getMany();
-
-  //   return tasks;
-  // }
-
-  @Query(() => Task)
+  @Query(() => PaginatedTasks)
   @UseMiddleware(isAuth)
-  async async(@Arg('id') id: string) {
-    const task = await Task.findOne({
-      where: {
-        id: parseInt(id, 10),
-      },
-    });
+  async getAllTasks(@Args() { take, cursor }: PaginationArgs) {
+    const realLimit = take ? take + 1 : 10;
 
-    return task;
+    // Check if has more tasks
+    const realLimitPlusOne = realLimit + 1;
+
+    const query = getRepository(Task)
+      .createQueryBuilder('task')
+      .take(realLimitPlusOne);
+
+    if (cursor) {
+      const [type, payload] = deserializeCursor(cursor);
+      console.log({ type, payload });
+
+      if (type === CursorType.PREVIOUS) {
+        query
+          .where('(task."createdAt" < :payload)')
+          .orderBy('task."createdAt"', 'DESC');
+      }
+      if (type === CursorType.NEXT) {
+        query
+          .where('(task."createdAt" > :payload)')
+          .orderBy('task."createdAt"', 'ASC');
+      }
+
+      query.setParameters({ payload: new Date(parseInt(payload)) });
+    }
+
+    const tasks = await query.getMany();
+
+    return {
+      tasks: tasks.slice(0, realLimit),
+      hasMore: tasks.length === realLimitPlusOne,
+    };
   }
 }

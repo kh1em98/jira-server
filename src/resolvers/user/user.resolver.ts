@@ -1,20 +1,8 @@
 import { User } from './../../entity/User';
-import {
-  Arg,
-  Args,
-  Ctx,
-  FieldResolver,
-  Mutation,
-  Query,
-  Resolver,
-  Root,
-  UseMiddleware,
-} from 'type-graphql';
+import { Ctx, FieldResolver, Resolver, Root } from 'type-graphql';
 
-import { isAuth, isVerified } from '../../middlewares/isAuth.middleware';
 import { MyContext } from '../../types/MyContext';
 import { queryBaseResolver } from '../baseQuery';
-import { Task } from '../../entity/Task';
 
 const UserBaseResolver = queryBaseResolver('User', User);
 
