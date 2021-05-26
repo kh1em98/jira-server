@@ -18,7 +18,6 @@ module.exports = {
   database: DB_NAME,
   synchronize: true,
   logging: false,
-  entities: ['src/entity/*.*'],
-  seeds: ['src/database/seeds/*.*'],
-  factories: ['src/database/factories/*.*'],
+  entities: ['src/entity/**/*.ts'],
+  migrations: ['src/migrations/**/*.ts'],
 };

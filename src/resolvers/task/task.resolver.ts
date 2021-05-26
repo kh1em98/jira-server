@@ -99,24 +99,23 @@ export default class TaskResolver extends TaskBaseResolver {
 
     if (cursor) {
       const [type, payload] = deserializeCursor(cursor);
-      console.log({ type, payload });
 
       if (type === CursorType.PREVIOUS) {
         query
-          .where('(task."createdAt" < :payload)')
+          .where(`task."createdAt" < :payload`)
           .orderBy('task."createdAt"', 'DESC');
-      }
-      if (type === CursorType.NEXT) {
+      } else if (type === CursorType.NEXT) {
         query
-          .where('(task."createdAt" > :payload)')
+          .where(`task."createdAt" > :payload`)
           .orderBy('task."createdAt"', 'ASC');
+      } else {
+        throw new Error('Invalid cursor');
       }
 
       query.setParameters({ payload: new Date(parseInt(payload)) });
     }
 
     const tasks = await query.getMany();
-
     return {
       tasks: tasks.slice(0, realLimit),
       hasMore: tasks.length === realLimitPlusOne,

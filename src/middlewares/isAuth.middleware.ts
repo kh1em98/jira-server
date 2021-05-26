@@ -6,8 +6,6 @@ export const isAuth: MiddlewareFn<MyContext> = async (
   { context: { req, res } },
   next,
 ) => {
-  console.log('session : ', req.session.userId);
-
   if (!req.session.userId) {
     res.clearCookie('sid');
     throw new Error('Not authenticated');
