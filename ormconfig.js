@@ -20,4 +20,7 @@ module.exports = {
   logging: false,
   entities: ['src/entity/**/*.ts'],
   migrations: ['src/migrations/**/*.ts'],
+  cli: {
+    migrationsDir: 'src/migrations',
+  },
 };
