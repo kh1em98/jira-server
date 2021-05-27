@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { ApolloServer } from 'apollo-server-express';
-import express, { Application } from 'express';
+import express, { Application, NextFunction, Request, Response } from 'express';
 import { createConnection } from 'typeorm';
 import session from 'express-session';
 declare module 'express-session' {
@@ -83,6 +83,11 @@ const main = async () => {
   );
 
   apolloServer.applyMiddleware({ app });
+
+  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    console.log('error handler : ', err);
+    res.status(500).send('ngu lon');
+  });
 
   app.listen(PORT, async () => {
     console.log(`server started on http://localhost:${PORT}/graphql`);

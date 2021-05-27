@@ -10,6 +10,6 @@ export class RegisterInput extends PasswordMixin(class {}) {
 
   @Field()
   @IsEmail()
-  @IsEmailAlreadyExist()
+  // @IsEmailAlreadyExist()
   email: string;
 }

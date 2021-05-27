@@ -1,5 +1,5 @@
 import { User } from './../../entity/User';
-import { Ctx, FieldResolver, Resolver, Root } from 'type-graphql';
+import { Ctx, FieldResolver, Query, Resolver, Root } from 'type-graphql';
 
 import { MyContext } from '../../types/MyContext';
 import { queryBaseResolver } from '../baseQuery';
@@ -16,5 +16,11 @@ export default class UserResolver extends UserBaseResolver {
     }
     // current user wants to see someone elses email
     return '';
+  }
+
+  @Query(() => [User])
+  async getAllUser() {
+    const users = await User.find({});
+    return users;
   }
 }
