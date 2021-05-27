@@ -15,9 +15,9 @@ import { RegisterInput } from './RegisterInput';
 import { ApolloError } from 'apollo-server-express';
 import { registerSchema } from '../../../validations/auth.validation';
 import { InputValidationError } from '../../../shared/error/InputValidationError';
-import { IError } from '../../../shared/error/Error';
+import { Error } from '../../../shared/error/Error';
 
-@ObjectType({ implements: IError })
+@ObjectType({ implements: Error })
 class EmailExistedError {
   @Field()
   message: string;
@@ -25,21 +25,33 @@ class EmailExistedError {
 
 const RegisterPayload = createUnionType({
   name: 'RegisterPayload',
-  types: () => [User, EmailExistedError, InputValidationError],
-  // resolveType(value) {
-
-  // },
+  types: () => [User, EmailExistedError, InputValidationError] as const,
+  resolveType(value) {
+    if ('id' in value) {
+      return User;
+    }
+    if ('field' in value) {
+      return InputValidationError;
+    }
+    if ('message' in value) {
+      return EmailExistedError;
+    }
+    return null;
+  },
 });
 
 @Resolver()
 export default class RegisterResolver {
   @Mutation(() => RegisterPayload)
   async register(@Arg('input') input: RegisterInput) {
-    const { email, fullName, password } = input;
+    const { email, password, fullName } = input;
     const { error } = registerSchema.validate(input);
+
+    console.log('error : ', error);
 
     if (error) {
       return {
+        __typename: 'InputValidationError',
         message: error.message,
       };
     }
@@ -48,6 +60,7 @@ export default class RegisterResolver {
 
     if (isEmailExisted) {
       return {
+        __typename: 'EmailExistedError',
         message: `${email} has already been registered`,
       };
     }
@@ -61,9 +74,14 @@ export default class RegisterResolver {
         password: hashPassword,
       }).save();
 
+      console.log('user : ', user);
+
       sendEmail(user.email, await createConfirmationUrl(user.id));
 
-      return user;
+      return {
+        __typename: 'User',
+        ...user,
+      };
     } catch (error) {
       console.log('error : ', error.message);
       return {
