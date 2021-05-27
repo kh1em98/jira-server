@@ -13,37 +13,46 @@ import { sendEmail, createConfirmationUrl } from '../../../utils/mail';
 import { User } from '../../../entity/User';
 import { RegisterInput } from './RegisterInput';
 import { ApolloError } from 'apollo-server-express';
+import { registerSchema } from '../../../validations/auth.validation';
+import { InputValidationError } from '../../../shared/error/InputValidationError';
+import { IError } from '../../../shared/error/Error';
 
-@ObjectType()
+@ObjectType({ implements: IError })
 class EmailExistedError {
   @Field()
-  errorMsg: string;
+  message: string;
 }
 
 const RegisterPayload = createUnionType({
   name: 'RegisterPayload',
-  types: () => [User, EmailExistedError],
-  resolveType(value) {
-    if ('errorMsg' in value) {
-      return EmailExistedError;
-    } else {
-      return User;
-    }
-  },
+  types: () => [User, EmailExistedError, InputValidationError],
+  // resolveType(value) {
+
+  // },
 });
 
 @Resolver()
 export default class RegisterResolver {
   @Mutation(() => RegisterPayload)
-  async register(@Arg('input') { fullName, email, password }: RegisterInput) {
-    const hashPassword = await bcrypt.hash(password, 10);
+  async register(@Arg('input') input: RegisterInput) {
+    const { email, fullName, password } = input;
+    const { error } = registerSchema.validate(input);
 
-    const isEmailExsited = await User.findOne({ where: { email } });
-    if (isEmailExsited) {
+    if (error) {
       return {
-        errorMsg: `${email} has already been registered`,
+        message: error.message,
       };
     }
+
+    const isEmailExisted = await User.findOne({ where: { email } });
+
+    if (isEmailExisted) {
+      return {
+        message: `${email} has already been registered`,
+      };
+    }
+
+    const hashPassword = await bcrypt.hash(password, 10);
 
     try {
       const user = await User.create({
@@ -58,7 +67,7 @@ export default class RegisterResolver {
     } catch (error) {
       console.log('error : ', error.message);
       return {
-        errorMsg: `Error : ${error.message}`,
+        message: `Error : ${error.message}`,
       };
     }
   }

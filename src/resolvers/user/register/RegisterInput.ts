@@ -9,7 +9,7 @@ export class RegisterInput extends PasswordMixin(class {}) {
   fullName: string;
 
   @Field()
-  @IsEmail()
+  // @IsEmail()
   // @IsEmailAlreadyExist()
   email: string;
 }
