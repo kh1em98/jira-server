@@ -20,7 +20,11 @@ export class User extends BaseEntity {
 
   @Field()
   @Column()
-  fullName: string;
+  firstName: string;
+
+  @Field()
+  @Column()
+  lastName: string;
 
   @Field()
   @Column({ type: 'varchar', unique: true })

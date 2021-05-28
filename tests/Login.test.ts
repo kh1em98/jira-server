@@ -23,7 +23,8 @@ beforeAll(async () => {
   const hashPassword = await bcrypt.hash(passwordBeforeHash, 10);
 
   testUser = await User.create({
-    fullName: faker.name.firstName(),
+    firstName: faker.name.firstName(),
+    lastName: faker.name.lastName(),
     email: faker.internet.email(),
     password: hashPassword,
   }).save();

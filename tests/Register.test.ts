@@ -26,7 +26,8 @@ const registerMutation = `
 	mutation Register($input: RegisterInput!) {
 		register(input: $input) {
 			id
-			fullName
+			firstName
+      lastName
 			email
 		}
 	}
@@ -36,14 +37,16 @@ describe('Register', () => {
   invalidEmailInputTest({
     source: registerMutation,
     otherFieldsInput: {
-      fullName: faker.name.firstName(),
+      firstName: faker.name.firstName(),
+      lastName: faker.name.lastName(),
       password: faker.internet.password(),
     },
   });
 
   it('create user', async () => {
     const fakerUser = {
-      fullName: faker.name.firstName(),
+      firstName: faker.name.firstName(),
+      lastName: faker.name.lastName(),
       email: faker.internet.email(),
       password: faker.internet.password(),
     };
@@ -58,7 +61,8 @@ describe('Register', () => {
     expect(response).toMatchObject({
       data: {
         register: {
-          fullName: fakerUser.fullName,
+          firstName: faker.name.firstName(),
+          lastName: faker.name.lastName(),
           email: fakerUser.email,
         },
       },

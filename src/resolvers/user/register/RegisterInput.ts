@@ -6,7 +6,10 @@ import { PasswordMixin } from '../../../shared/PasswordInput';
 @InputType()
 export class RegisterInput extends PasswordMixin(class {}) {
   @Field()
-  fullName: string;
+  firstName: string;
+
+  @Field()
+  lastName: string;
 
   @Field()
   // @IsEmail()

@@ -37,7 +37,8 @@ const createSeedUsers = async () => {
   for (let i = 0; i < 10; i++) {
     const hashPassword = await bcrypt.hash(password, 10);
     await User.create({
-      fullName: faker.name.firstName() + ' ' + faker.name.lastName(),
+      firstName: faker.name.firstName(),
+      lastName: faker.name.lastName(),
       email: faker.internet.email(),
       password: hashPassword,
     }).save();
@@ -56,7 +57,7 @@ const createSeedTasks = async () => {
   }
 };
 
-const createSeedUser = async () => {
+const createSeedData = async () => {
   try {
     await connectDb();
     await createSeedUsers();
@@ -66,4 +67,4 @@ const createSeedUser = async () => {
   }
 };
 
-createSeedUser();
+createSeedData();

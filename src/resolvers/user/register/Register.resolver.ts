@@ -33,8 +33,15 @@ const RegisterPayload = createUnionType({
 @Resolver()
 export default class RegisterResolver {
   @Mutation(() => RegisterPayload)
-  async register(@Arg('input') { email, password, fullName }: RegisterInput) {
-    const { error } = registerSchema.validate({ email, password, fullName });
+  async register(
+    @Arg('input') { email, password, firstName, lastName }: RegisterInput,
+  ) {
+    const { error } = registerSchema.validate({
+      email,
+      password,
+      firstName,
+      lastName,
+    });
 
     if (error) {
       return new InputValidationError(error.message, error?.details[0].path);
@@ -49,7 +56,8 @@ export default class RegisterResolver {
     const hashPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      fullName,
+      firstName,
+      lastName,
       email,
       password: hashPassword,
     }).save();

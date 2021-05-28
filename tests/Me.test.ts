@@ -23,7 +23,8 @@ const meQuery = `
  {
   me {
     id
-    fullName
+    firstName
+    lastName
     email
   }
 }
@@ -32,7 +33,8 @@ const meQuery = `
 describe('Me', () => {
   it('get current user', async () => {
     const user = await User.create({
-      fullName: faker.name.firstName(),
+      firstName: faker.name.firstName(),
+      lastName: faker.name.lastName(),
       email: faker.internet.email(),
       password: faker.internet.password(),
     }).save();
@@ -48,7 +50,8 @@ describe('Me', () => {
       data: {
         me: {
           id: user.id,
-          fullName: user.fullName,
+          firstName: user.firstName,
+          lastName: user.lastName,
           email: user.email,
         },
       },
