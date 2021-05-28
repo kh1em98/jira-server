@@ -33,9 +33,8 @@ const RegisterPayload = createUnionType({
 @Resolver()
 export default class RegisterResolver {
   @Mutation(() => RegisterPayload)
-  async register(@Arg('input') input: RegisterInput) {
-    const { email, password, fullName } = input;
-    const { error } = registerSchema.validate(input);
+  async register(@Arg('input') { email, password, fullName }: RegisterInput) {
+    const { error } = registerSchema.validate({ email, password, fullName });
 
     if (error) {
       return new InputValidationError(error.message, error?.details[0].path);
