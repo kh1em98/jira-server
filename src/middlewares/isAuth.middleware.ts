@@ -30,7 +30,7 @@ export const isAuth: MiddlewareFn<MyContext> = async (
       throw new Error('Not authenticated');
     }
 
-    req.session.user = user;
+    (req as any).user = user;
     return next();
   } catch (error) {
     res.clearCookie(COOKIE_NAME);
@@ -50,7 +50,9 @@ export const isVerified: MiddlewareFn<MyContext> = async (
     throw new Error('User is not verified');
   }
 
-  req.session.user = user;
+  if (!(req as any).user) {
+    (req as any).user = user;
+  }
 
   return next();
 };

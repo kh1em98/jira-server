@@ -1,6 +1,5 @@
 import { BaseRedisCache } from 'apollo-server-cache-redis';
 import { ApolloServer } from 'apollo-server-express';
-import connectRedis from 'connect-redis';
 import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
 import session from 'express-session';
@@ -56,8 +55,6 @@ const main = async () => {
 
   const app: Application = express();
 
-  const RedisStore = connectRedis(session);
-
   app.use(
     cors({
       credentials: true,
@@ -67,8 +64,9 @@ const main = async () => {
 
   app.use(
     session({
-      store: new RedisStore({
-        client: redis as any,
+      store: MongoStore.create({
+        mongoUrl: 'mongodb://localhost:27017/social',
+        touchAfter: 24 * 3600,
       }),
       name: COOKIE_NAME,
       secret: 'aslkdfjoiq12312',
@@ -78,7 +76,7 @@ const main = async () => {
         httpOnly: true,
         sameSite: 'lax',
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 1000 * 60 * 60 * 24 * 2,
+        maxAge: 1000 * 60 * 60 * 24 * 2, // 2 day
       },
     }),
   );
@@ -86,8 +84,6 @@ const main = async () => {
   apolloServer.applyMiddleware({ app, cors: false });
 
   app.use((req: Request, res: Response) => {
-    console.log('cookie : ', req.cookies);
-    console.log('signed cookie : ', req.signedCookies);
     res.status(404).send('Not found');
   });
 
