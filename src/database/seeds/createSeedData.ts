@@ -1,16 +1,16 @@
-import { Task } from '../entity/Task';
+import { Task } from '../../entity/Task';
 import { createConnection } from 'typeorm';
 import faker from 'faker';
 import bcrypt from 'bcrypt';
 
-import { User } from '../entity/User';
+import { User } from '../../entity/User';
 import {
   DB_HOST,
   DB_PORT,
   DB_USERNAME,
   DB_PASSWORD,
   DB_NAME,
-} from '../config/vars';
+} from '../../config/vars';
 
 function getRandomArbitrary(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -39,7 +39,7 @@ const createSeedUsers = async () => {
     await User.create({
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
-      email: faker.internet.email(),
+      email: faker.internet.email().toLowerCase(),
       password: hashPassword,
     }).save();
   }

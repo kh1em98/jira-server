@@ -1,13 +1,21 @@
 import { MiddlewareFn } from 'type-graphql';
 import { MyContext } from '../types/MyContext';
 import { User } from '../entity/User';
+import { COOKIE_NAME } from '../config/constant';
+import cookie from 'cookie-signature';
 
 export const isAuth: MiddlewareFn<MyContext> = async (
   { context: { req, res } },
   next,
 ) => {
+  const val = cookie.unsign(
+    'aslkdfjoiq12312',
+    's%3AkCthYKeqXQOZr6PGLMpBluQkpO5cLxdp.UmFzHTgiFwZkNP5r1pCaN%2F9qNlC%2FeJhfKhxTTgJY0PE',
+  );
+
+  console.log('val : ', val);
+
   if (!req.session.userId) {
-    res.clearCookie('sid');
     throw new Error('Not authenticated');
   }
 
@@ -25,7 +33,7 @@ export const isAuth: MiddlewareFn<MyContext> = async (
     req.session.user = user;
     return next();
   } catch (error) {
-    res.clearCookie('sid');
+    res.clearCookie(COOKIE_NAME);
     throw new Error('Not authenticated');
   }
 };

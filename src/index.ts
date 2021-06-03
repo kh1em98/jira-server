@@ -1,25 +1,26 @@
-import 'reflect-metadata';
+import { BaseRedisCache } from 'apollo-server-cache-redis';
 import { ApolloServer } from 'apollo-server-express';
+import connectRedis from 'connect-redis';
+import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
-import { createConnection } from 'typeorm';
 import session from 'express-session';
+import 'reflect-metadata';
+import { createConnection } from 'typeorm';
+import MongoStore from 'connect-mongo';
+import { COOKIE_NAME } from './config/constant';
+import { PORT } from './config/vars';
+import { User } from './entity/User';
+import { redis } from './redis';
+import { createSchema } from './utils/createSchema';
+import { createTaskLoader } from './utils/createTaskLoader';
+import { createUserLoader } from './utils/createUserLoader';
+
 declare module 'express-session' {
   export interface SessionData {
     userId: number;
     user: User;
   }
 }
-
-import connectRedis from 'connect-redis';
-import cors from 'cors';
-
-import { redis } from './redis';
-import { User } from './entity/User';
-import { createSchema } from './utils/createSchema';
-import { createUserLoader } from './utils/createUserLoader';
-import { PORT } from './config/vars';
-import { BaseRedisCache } from 'apollo-server-cache-redis';
-import { createTaskLoader } from './utils/createTaskLoader';
 
 const connectDbWithRetry = () => {
   createConnection()
@@ -69,7 +70,7 @@ const main = async () => {
       store: new RedisStore({
         client: redis as any,
       }),
-      name: 'sid',
+      name: COOKIE_NAME,
       secret: 'aslkdfjoiq12312',
       resave: false,
       saveUninitialized: false,
@@ -82,9 +83,11 @@ const main = async () => {
     }),
   );
 
-  apolloServer.applyMiddleware({ app });
+  apolloServer.applyMiddleware({ app, cors: false });
 
   app.use((req: Request, res: Response) => {
+    console.log('cookie : ', req.cookies);
+    console.log('signed cookie : ', req.signedCookies);
     res.status(404).send('Not found');
   });
 

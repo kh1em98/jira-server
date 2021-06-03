@@ -2,11 +2,19 @@ import nodemailer from 'nodemailer';
 import { v4 as uuidv4 } from 'uuid';
 import { redis } from '../redis';
 
-export const PREFIX_VERIFY_EMAIL = 'VERIFY_EMAIL';
+export enum TokenPrefix {
+  VERIFY_EMAIL = 'verify_email',
+  FORGOT_PASSWORD = 'forgot_password',
+}
 
-export async function createConfirmationUrl(userId: number): Promise<string> {
+const TOKEN_EXPIRED: number = 60 * 60; // 1 hour
+
+export async function createConfirmationUrl(
+  userId: number,
+  prefix: TokenPrefix,
+): Promise<string> {
   const id = uuidv4();
-  await redis.set(`${PREFIX_VERIFY_EMAIL}${id}`, userId, 'ex', 60 * 60);
+  await redis.set(`${prefix}:${id}`, userId, 'ex', TOKEN_EXPIRED);
 
   return id;
 }

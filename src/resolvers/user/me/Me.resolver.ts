@@ -8,7 +8,7 @@ import { queryBaseResolver } from '../../baseQuery';
 const UserBaseResolver = queryBaseResolver('User', User);
 @Resolver()
 export default class MeResolver extends UserBaseResolver {
-  @UseMiddleware(isAuth, isVerified)
+  @UseMiddleware(isAuth)
   @Query(() => User, { nullable: true })
   me(@Ctx() ctx: MyContext): User {
     return ctx.req.session.user!;

@@ -8,7 +8,11 @@ import {
 } from 'type-graphql';
 
 import bcrypt from 'bcrypt';
-import { sendEmail, createConfirmationUrl } from '../../../utils/mail';
+import {
+  sendEmail,
+  createConfirmationUrl,
+  TokenPrefix,
+} from '../../../utils/mail';
 import { User } from '../../../entity/User';
 import { RegisterInput } from './RegisterInput';
 import { registerSchema } from '../../../validations/auth.validation';
@@ -25,14 +29,14 @@ class EmailExistedError {
   message: string;
 }
 
-const RegisterPayload = createUnionType({
+const RegisterResponse = createUnionType({
   name: 'RegisterPayload',
   types: () => [User, EmailExistedError, InputValidationError] as const,
 });
 
 @Resolver()
 export default class RegisterResolver {
-  @Mutation(() => RegisterPayload)
+  @Mutation(() => RegisterResponse)
   async register(
     @Arg('input') { email, password, firstName, lastName }: RegisterInput,
   ) {
@@ -62,7 +66,10 @@ export default class RegisterResolver {
       password: hashPassword,
     }).save();
 
-    sendEmail(user.email, await createConfirmationUrl(user.id));
+    sendEmail(
+      user.email,
+      await createConfirmationUrl(user.id, TokenPrefix.VERIFY_EMAIL),
+    );
 
     return user;
   }

@@ -9,3 +9,10 @@ export const registerSchema = Joi.object({
   firstName: Joi.string().required(),
   lastName: Joi.string().required(),
 });
+
+export const loginSchema = Joi.object({
+  email: Joi.string()
+    .required()
+    .email({ minDomainSegments: 2, tlds: { allow: ['com'] } }),
+  password: Joi.string().required().custom(password),
+});
