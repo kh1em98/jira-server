@@ -1,5 +1,5 @@
 import { BaseRedisCache } from 'apollo-server-cache-redis';
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer, SchemaDirectiveVisitor } from 'apollo-server-express';
 import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
 import session from 'express-session';
@@ -7,12 +7,12 @@ import 'reflect-metadata';
 import { createConnection } from 'typeorm';
 import MongoStore from 'connect-mongo';
 import { COOKIE_NAME } from './config/constant';
-import { PORT } from './config/vars';
+import { PORT, __prod__ } from './config/vars';
 import { User } from './entity/User';
 import { redis } from './redis';
 import { createSchema } from './utils/createSchema';
-import { createTaskLoader } from './utils/createTaskLoader';
 import { createUserLoader } from './utils/createUserLoader';
+import OnlyAdminDirective from './directives/onlyAdmin';
 
 declare module 'express-session' {
   export interface SessionData {
@@ -41,17 +41,34 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema,
-    context: ({ req, res }: any) => ({
-      req,
-      res,
-      userLoader: createUserLoader(),
-      taskLoader: createTaskLoader(),
-    }),
+    schemaDirectives: {
+      onlyAdmin: OnlyAdminDirective,
+    },
+    context: async ({ req, res }: any) => {
+      const user = await User.findOne({
+        where: {
+          id: req.session?.userId,
+        },
+      });
+
+      return {
+        req,
+        res,
+        user,
+        userLoader: createUserLoader(),
+      };
+    },
     // Trong trường hợp server có nhiều instance, cần có shared cache để instance này có thể lấy cache của instance kia
     cache: new BaseRedisCache({
       client: redis,
     }),
-    tracing: true,
+    // Ko muon hien thi error va debug cho End-User
+    tracing: !__prod__,
+    debug: !__prod__,
+  });
+
+  SchemaDirectiveVisitor.visitSchemaDirectives(schema, {
+    onlyAdmin: OnlyAdminDirective,
   });
 
   const app: Application = express();

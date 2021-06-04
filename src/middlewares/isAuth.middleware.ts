@@ -1,8 +1,7 @@
 import { MiddlewareFn } from 'type-graphql';
-import { MyContext } from '../types/MyContext';
-import { User } from '../entity/User';
 import { COOKIE_NAME } from '../config/constant';
-import cookie from 'cookie-signature';
+import { User } from '../entity/User';
+import { MyContext } from '../types/MyContext';
 
 export const isAuth: MiddlewareFn<MyContext> = async (
   { context: { req, res } },

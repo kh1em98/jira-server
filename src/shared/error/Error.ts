@@ -1,4 +1,4 @@
-import { InterfaceType, Field, ID, Int } from 'type-graphql';
+import { Field, InterfaceType } from 'type-graphql';
 
 @InterfaceType()
 export abstract class Error {

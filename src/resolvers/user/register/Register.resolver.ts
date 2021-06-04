@@ -20,7 +20,7 @@ import { InputValidationError } from '../../../shared/error/InputValidationError
 import { Error } from '../../../shared/error/Error';
 
 @ObjectType({ implements: Error })
-class EmailExistedError {
+export class EmailExistedError {
   constructor(_message: string) {
     this.message = _message;
   }

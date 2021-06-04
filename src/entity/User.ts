@@ -1,16 +1,14 @@
-import { Field, ObjectType } from 'type-graphql';
-import { Task } from './Task';
-
+import { Directive, Field, ObjectType, registerEnumType } from 'type-graphql';
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
   BaseEntity,
-  OneToMany,
+  Column,
   CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { registerEnumType } from 'type-graphql';
+import { Task } from './Task';
 
 export enum Role {
   Admin = 'admin',
@@ -45,6 +43,8 @@ export class User extends BaseEntity {
   })
   isFacebookAccount: boolean;
 
+  @Directive('@onlyAdmin')
+  @Field({ nullable: true })
   @Column()
   password: string;
 
@@ -63,7 +63,7 @@ export class User extends BaseEntity {
   })
   verified: boolean;
 
-  @Field((type) => Role)
+  @Field(() => Role)
   @Column({
     default: Role.User,
   })

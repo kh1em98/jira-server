@@ -14,3 +14,5 @@ export const PORT = process.env.PORT;
 
 export const DOCKER_DEV_REDIS_HOST = process.env.DOCKER_DEV_REDIS_HOST;
 export const DOCKER_DEV_DB_HOST = process.env.DOCKER_DEV_DB_HOST;
+
+export const __prod__ = process.env.NODE_ENV === 'production';

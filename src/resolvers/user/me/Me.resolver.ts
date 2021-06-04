@@ -1,11 +1,11 @@
-import { Resolver, Ctx, Query, UseMiddleware } from 'type-graphql';
-
-import { isAuth, isVerified } from '../../../middlewares/isAuth.middleware';
+import { Ctx, Query, Resolver, UseMiddleware } from 'type-graphql';
 import { User } from '../../../entity/User';
+import { isAuth } from '../../../middlewares/isAuth.middleware';
 import { MyContext } from '../../../types/MyContext';
 import { queryBaseResolver } from '../../baseQuery';
 
 const UserBaseResolver = queryBaseResolver('User', User);
+
 @Resolver()
 export default class MeResolver extends UserBaseResolver {
   @UseMiddleware(isAuth)

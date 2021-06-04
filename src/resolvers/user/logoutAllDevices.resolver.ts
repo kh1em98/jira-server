@@ -1,16 +1,15 @@
-import { User } from './../../entity/User';
-import { Mutation, Resolver, Ctx, UseMiddleware, Arg } from 'type-graphql';
-
 import mongoose from 'mongoose';
-import { MyContext } from '../../types/MyContext';
+import { Arg, Ctx, Mutation, Resolver } from 'type-graphql';
 import { COOKIE_NAME } from '../../config/constant';
+import { MyContext } from '../../types/MyContext';
+import { User } from './../../entity/User';
 
 @Resolver()
 export default class LogoutResolver {
   @Mutation(() => Boolean)
   async logoutAllDevice(
     @Arg('email') email: string,
-    @Ctx() { req, res }: MyContext,
+    @Ctx() { res }: MyContext,
   ) {
     res.clearCookie(COOKIE_NAME);
 
