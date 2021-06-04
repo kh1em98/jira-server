@@ -14,24 +14,28 @@ export default class LogoutResolver {
   ) {
     res.clearCookie(COOKIE_NAME);
 
-    await mongoose.connect('mongodb://localhost:27017/social', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    try {
+      await mongoose.connect('mongodb://localhost:27017/social', {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
+    } catch (error) {
+      console.log('connect mongo error : ', error);
+    }
 
     const Schema = mongoose.Schema;
     const SessionSchema = new Schema({ _id: String }, { strict: false });
     const Session = mongoose.model('sessions', SessionSchema);
 
-    const user = await User.findOne({
-      where: {
-        email,
-      },
-    });
-
     try {
+      const user = await User.findOne({
+        where: {
+          email,
+        },
+      });
+
       await Session.deleteMany({
-        session: { $regex: `"userId":${user.id}` },
+        session: { $regex: `"userId":${user?.id}` },
       }).lean();
 
       return true;

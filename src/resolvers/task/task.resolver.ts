@@ -86,7 +86,6 @@ export default class TaskResolver extends TaskBaseResolver {
   }
 
   @Query(() => PaginatedTasks)
-  @UseMiddleware(isAuth)
   async getAllTasks(@Args() { take, cursor }: PaginationArgs) {
     const realLimit = take ? take + 1 : 10;
 

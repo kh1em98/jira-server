@@ -23,7 +23,8 @@ declare module 'express-session' {
 
 const connectDbWithRetry = () => {
   createConnection()
-    .then(() => {
+    .then(async (conn) => {
+      await conn.runMigrations();
       console.log('Connected to DB...');
     })
     .catch((error) => {

@@ -61,8 +61,6 @@ export default class LoginResolver {
       password,
     });
 
-    console.log('error : ', error);
-
     if (error) {
       return new InputValidationError(error.message, error?.details[0].path);
     }

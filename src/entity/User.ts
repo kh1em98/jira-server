@@ -10,6 +10,16 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { registerEnumType } from 'type-graphql';
+
+export enum Role {
+  Admin = 'admin',
+  User = 'user',
+}
+
+registerEnumType(Role, {
+  name: 'Role', // this one is mandatory
+});
 
 @ObjectType()
 @Entity()
@@ -52,6 +62,12 @@ export class User extends BaseEntity {
     default: false,
   })
   verified: boolean;
+
+  @Field((type) => Role)
+  @Column({
+    default: Role.User,
+  })
+  role: Role;
 
   @Field(() => String)
   @CreateDateColumn()
