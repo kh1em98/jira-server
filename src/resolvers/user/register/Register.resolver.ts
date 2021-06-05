@@ -1,6 +1,7 @@
 import {
   Arg,
   createUnionType,
+  Ctx,
   Field,
   Mutation,
   ObjectType,
@@ -18,6 +19,7 @@ import { RegisterInput } from './RegisterInput';
 import { registerSchema } from '../../../validations/auth.validation';
 import { InputValidationError } from '../../../shared/error/InputValidationError';
 import { Error } from '../../../shared/error/Error';
+import { MyContext } from '../../../types/MyContext';
 
 @ObjectType({ implements: Error })
 export class EmailExistedError {
@@ -39,6 +41,7 @@ export default class RegisterResolver {
   @Mutation(() => RegisterResponse)
   async register(
     @Arg('input') { email, password, firstName, lastName }: RegisterInput,
+    @Ctx() { models, req }: MyContext,
   ) {
     const { error } = registerSchema.validate({
       email,
@@ -57,14 +60,14 @@ export default class RegisterResolver {
       return new EmailExistedError(`${email} has already been registered`);
     }
 
-    const hashPassword = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
+    const user = await models.User.create({
       firstName,
       lastName,
       email,
-      password: hashPassword,
-    }).save();
+      password,
+    });
+
+    req.session.userId = user.id;
 
     sendEmail(
       user.email,

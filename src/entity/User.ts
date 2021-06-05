@@ -43,7 +43,6 @@ export class User extends BaseEntity {
   })
   isFacebookAccount: boolean;
 
-  @Directive('@onlyAdmin')
   @Field({ nullable: true })
   @Column()
   password: string;

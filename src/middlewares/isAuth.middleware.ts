@@ -1,50 +1,25 @@
 import { MiddlewareFn } from 'type-graphql';
 import { COOKIE_NAME } from '../config/constant';
-import { User } from '../entity/User';
 import { MyContext } from '../types/MyContext';
 
 export const isAuth: MiddlewareFn<MyContext> = async (
-  { context: { req, res } },
+  { context: { res, currentUser } },
   next,
 ) => {
-  if (!req.session.userId) {
-    throw new Error('Not authenticated');
-  }
-
-  try {
-    const user = await User.findOne({
-      where: {
-        id: req.session.userId,
-      },
-    });
-
-    if (!user) {
-      throw new Error('Not authenticated');
-    }
-
-    (req as any).user = user;
-    return next();
-  } catch (error) {
+  if (!currentUser) {
     res.clearCookie(COOKIE_NAME);
     throw new Error('Not authenticated');
   }
+
+  return next();
 };
 
 export const isVerified: MiddlewareFn<MyContext> = async (
-  { context: { req } },
+  { context: { currentUser } },
   next,
 ) => {
-  const userId = req.session.userId;
-
-  const user = await User.findOne(userId);
-
-  if (!user || !user.verified) {
+  if (!currentUser || !currentUser.verified) {
     throw new Error('User is not verified');
   }
-
-  if (!(req as any).user) {
-    (req as any).user = user;
-  }
-
   return next();
 };

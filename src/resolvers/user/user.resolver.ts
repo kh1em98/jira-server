@@ -1,26 +1,57 @@
-import { User } from './../../entity/User';
-import { Ctx, FieldResolver, Query, Resolver, Root } from 'type-graphql';
+import { Role, User } from './../../entity/User';
+import {
+  Arg,
+  Ctx,
+  Directive,
+  FieldResolver,
+  Mutation,
+  Query,
+  Resolver,
+  Root,
+  UseMiddleware,
+} from 'type-graphql';
 
 import { MyContext } from '../../types/MyContext';
 import { queryBaseResolver } from '../baseQuery';
+import { isAuth } from '../../middlewares/isAuth.middleware';
 
-const UserBaseResolver = queryBaseResolver('User', User);
+// const UserBaseResolver = queryBaseResolver('User', User);
 
+// export default class UserResolver extends UserBaseResolver {
 @Resolver(User)
-export default class UserResolver extends UserBaseResolver {
+export default class UserResolver {
   @FieldResolver(() => String)
-  email(@Root() user: User, @Ctx() { req }: MyContext) {
-    // this is the current user and its ok to show them their own email
-    if (req.session.userId === user.id) {
+  email(@Root() user: User, @Ctx() { req, currentUser }: MyContext) {
+    if (req.session.userId === user.id || currentUser?.role === Role.Admin) {
       return user.email;
     }
-    // current user wants to see someone elses email
     return '';
   }
 
-  @Query(() => [User])
-  async getAllUser() {
-    const users = await User.find({});
-    return users;
+  @FieldResolver(() => String)
+  password(@Root() user: User, @Ctx() { currentUser }: MyContext) {
+    if (currentUser?.role === Role.Admin) {
+      return user.password;
+    }
+    return '';
+  }
+
+  @UseMiddleware(isAuth)
+  @Query(() => [User], { nullable: true })
+  getAllUser(@Ctx() { models }: MyContext) {
+    return User.find({});
+  }
+
+  @UseMiddleware(isAuth)
+  @Query(() => User, { nullable: true })
+  getUserById(@Arg('id') id: number, @Ctx() { models }: MyContext) {
+    return models.User.getById(id);
+  }
+
+  @UseMiddleware(isAuth)
+  @Directive('@onlyAdmin')
+  @Mutation(() => Boolean)
+  async deleteUserById(@Arg('id') id: number, @Ctx() { models }: MyContext) {
+    return User.delete(id);
   }
 }

@@ -8,7 +8,7 @@ class OnlyAdminDirective extends SchemaDirectiveVisitor {
     field.resolve = function (...args) {
       const [, , context] = args;
 
-      const { currentUser } = context.user;
+      const { currentUser } = context;
       if (!currentUser || !isAdmin(currentUser)) {
         return null;
       }

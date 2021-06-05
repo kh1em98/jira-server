@@ -10,46 +10,39 @@ interface RegisterInput {
   password: string;
 }
 
-export function isAdmin(user: User): boolean {
-  return user.role === Role.Admin;
+export function isAdmin(user: User | undefined): boolean {
+  return user?.role === Role.Admin;
 }
 
-export const generateUserModel = (currentUser: User) => ({
+export const generateUserModel = (currentUser: User | undefined) => ({
   getAll: async () => {
+    if (!currentUser) return [];
     const allUsers = await User.find({});
-
-    if (isAdmin(currentUser)) {
-      return allUsers;
-    } else {
-      return allUsers.map((user) => {
-        return omit(user, ['password']);
-      });
-    }
+    return allUsers;
   },
   getById: async (id: number) => {
-    if (id === currentUser.id) {
+    console.log('current user : ', currentUser);
+    if (id === currentUser?.id) {
       return currentUser;
     }
 
-    const user = await User.findOne({
-      where: {
-        id,
-      },
-    });
-
     if (isAdmin(currentUser)) {
-      return user;
+      return await User.findOne({
+        where: {
+          id,
+        },
+      });
     }
 
-    return omit(user, ['password']);
+    return null;
   },
 
   getByEmail: async (email: string) => {
-    if (currentUser.email === email) {
+    if (currentUser?.email === email) {
       return currentUser;
     }
 
-    if (currentUser.role === Role.Admin) {
+    if (currentUser?.role === Role.Admin) {
       return await User.findOne({
         where: {
           email,
@@ -60,12 +53,6 @@ export const generateUserModel = (currentUser: User) => ({
     return null;
   },
   create: async ({ firstName, lastName, email, password }: RegisterInput) => {
-    const isEmailExisted = await User.findOne({ where: { email } });
-
-    if (isEmailExisted) {
-      return new EmailExistedError(`${email} has already been registered`);
-    }
-
     const hashPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
@@ -78,9 +65,14 @@ export const generateUserModel = (currentUser: User) => ({
     return user;
   },
   deleteById: async (id: number) => {
-    if (!isAdmin) return false;
+    if (!currentUser || !isAdmin(currentUser)) return false;
 
-    await User.delete(id);
-    return true;
+    try {
+      await User.delete(id);
+      return true;
+    } catch (error) {
+      console.log('delete user error : ', error);
+      return false;
+    }
   },
 });

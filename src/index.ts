@@ -13,6 +13,8 @@ import { redis } from './redis';
 import { createSchema } from './utils/createSchema';
 import { createUserLoader } from './utils/createUserLoader';
 import OnlyAdminDirective from './directives/onlyAdmin';
+import { generateTaskModel } from './models/Task';
+import { generateUserModel } from './models/User';
 
 declare module 'express-session' {
   export interface SessionData {
@@ -45,7 +47,7 @@ const main = async () => {
       onlyAdmin: OnlyAdminDirective,
     },
     context: async ({ req, res }: any) => {
-      const user = await User.findOne({
+      const currentUser = await User.findOne({
         where: {
           id: req.session?.userId,
         },
@@ -54,8 +56,12 @@ const main = async () => {
       return {
         req,
         res,
-        user,
+        currentUser,
         userLoader: createUserLoader(),
+        models: {
+          User: generateUserModel(currentUser),
+          Task: generateTaskModel(currentUser),
+        },
       };
     },
     // Trong trường hợp server có nhiều instance, cần có shared cache để instance này có thể lấy cache của instance kia
