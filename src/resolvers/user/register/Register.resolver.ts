@@ -7,19 +7,16 @@ import {
   ObjectType,
   Resolver,
 } from 'type-graphql';
-
-import bcrypt from 'bcrypt';
+import { User } from '../../../entity/User';
+import { Error } from '../../../shared/error/Error';
+import { InputValidationError } from '../../../shared/error/InputValidationError';
+import { MyContext } from '../../../types/MyContext';
 import {
-  sendEmail,
   createConfirmationUrl,
+  sendEmail,
   TokenPrefix,
 } from '../../../utils/mail';
-import { User } from '../../../entity/User';
 import { RegisterInput } from './RegisterInput';
-import { registerSchema } from '../../../validations/auth.validation';
-import { InputValidationError } from '../../../shared/error/InputValidationError';
-import { Error } from '../../../shared/error/Error';
-import { MyContext } from '../../../types/MyContext';
 
 @ObjectType({ implements: Error })
 export class EmailExistedError {
@@ -43,37 +40,24 @@ export default class RegisterResolver {
     @Arg('input') { email, password, firstName, lastName }: RegisterInput,
     @Ctx() { models, req }: MyContext,
   ) {
-    const { error } = registerSchema.validate({
-      email,
-      password,
-      firstName,
-      lastName,
-    });
+    try {
+      const user = await models.User.create({
+        firstName,
+        lastName,
+        email,
+        password,
+      });
 
-    if (error) {
-      return new InputValidationError(error.message, error?.details[0].path);
+      req.session.userId = user.id;
+
+      sendEmail(
+        user.email,
+        await createConfirmationUrl(user.id, TokenPrefix.VERIFY_EMAIL),
+      );
+
+      return user;
+    } catch (error) {
+      return error;
     }
-
-    const isEmailExisted = await User.findOne({ where: { email } });
-
-    if (isEmailExisted) {
-      return new EmailExistedError(`${email} has already been registered`);
-    }
-
-    const user = await models.User.create({
-      firstName,
-      lastName,
-      email,
-      password,
-    });
-
-    req.session.userId = user.id;
-
-    sendEmail(
-      user.email,
-      await createConfirmationUrl(user.id, TokenPrefix.VERIFY_EMAIL),
-    );
-
-    return user;
   }
 }

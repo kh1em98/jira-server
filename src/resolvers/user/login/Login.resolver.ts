@@ -22,7 +22,7 @@ import { loginSchema } from '../../../validations/auth.validation';
 import { InputValidationError } from '../../../shared/error/InputValidationError';
 
 @ObjectType({ implements: Error })
-class CredentialsError {
+export class CredentialsError {
   constructor(_message: string, _field: string) {
     this.message = _message;
     this.field = _field;
@@ -54,39 +54,23 @@ export default class LoginResolver {
   @Mutation(() => LoginResponse)
   async login(
     @Arg('input') { email, password }: LoginInput,
-    @Ctx() ctx: MyContext,
+    @Ctx() { req, models }: MyContext,
   ) {
-    const { error } = loginSchema.validate({
-      email,
-      password,
-    });
+    try {
+      const user = await models.User.login({ email, password });
 
-    if (error) {
-      return new InputValidationError(error.message, error?.details[0].path);
+      req.session.userId = user.id;
+
+      if (!user.verified) {
+        sendEmail(
+          user.email,
+          await createConfirmationUrl(user.id, TokenPrefix.VERIFY_EMAIL),
+        );
+      }
+
+      return user;
+    } catch (error) {
+      return error;
     }
-
-    const user = await User.findOne({
-      where: { email },
-    });
-    if (!user) {
-      return new CredentialsError('Wrong email', 'email');
-    }
-
-    const match = await bcrypt.compare(password, user.password);
-
-    if (!match) {
-      return new CredentialsError('Wrong password', 'password');
-    }
-
-    ctx.req.session.userId = user.id;
-
-    if (!user.verified) {
-      sendEmail(
-        user.email,
-        await createConfirmationUrl(user.id, TokenPrefix.VERIFY_EMAIL),
-      );
-    }
-
-    return user;
   }
 }
