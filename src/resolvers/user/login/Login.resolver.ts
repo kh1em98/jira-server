@@ -1,25 +1,22 @@
 import {
   Arg,
-  Mutation,
-  Resolver,
+  createUnionType,
+  Ctx,
   Field,
   InputType,
-  Ctx,
-  createUnionType,
+  Mutation,
   ObjectType,
+  Resolver,
 } from 'type-graphql';
-import bcrypt from 'bcrypt';
-
 import { User } from '../../../entity/User';
+import { Error } from '../../../shared/error/Error';
+import { InputValidationError } from '../../../shared/error/InputValidationError';
 import { MyContext } from '../../../types/MyContext';
 import {
   createConfirmationUrl,
   sendEmail,
   TokenPrefix,
 } from '../../../utils/mail';
-import { Error } from '../../../shared/error/Error';
-import { loginSchema } from '../../../validations/auth.validation';
-import { InputValidationError } from '../../../shared/error/InputValidationError';
 
 @ObjectType({ implements: Error })
 export class CredentialsError {

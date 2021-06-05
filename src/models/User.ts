@@ -1,13 +1,12 @@
 import bcrypt from 'bcrypt';
 import { Role, User } from '../entity/User';
-import { EmailExistedError } from '../resolvers/user/register/Register.resolver';
-import { InputValidationError } from '../shared/error/InputValidationError';
-import { loginSchema, registerSchema } from '../validations/auth.validation';
 import {
   CredentialsError,
   LoginInput,
 } from '../resolvers/user/login/Login.resolver';
-import { sendEmail, createConfirmationUrl, TokenPrefix } from '../utils/mail';
+import { EmailExistedError } from '../resolvers/user/register/Register.resolver';
+import { InputValidationError } from '../shared/error/InputValidationError';
+import { loginSchema, registerSchema } from '../validations/auth.validation';
 
 interface RegisterInput {
   firstName: string;
