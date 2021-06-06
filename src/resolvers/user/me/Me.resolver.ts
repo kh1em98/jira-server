@@ -1,4 +1,4 @@
-import { Ctx, Query, Resolver, UseMiddleware } from 'type-graphql';
+import { Ctx, Info, Query, Resolver, UseMiddleware } from 'type-graphql';
 import { User } from '../../../entity/User';
 import { isAuth } from '../../../middlewares/isAuth.middleware';
 import { MyContext } from '../../../types/MyContext';
@@ -10,15 +10,8 @@ const UserBaseResolver = queryBaseResolver('User', User);
 export default class MeResolver extends UserBaseResolver {
   @UseMiddleware(isAuth)
   @Query(() => User, { nullable: true })
-  async me(@Ctx() ctx: MyContext) {
-    try {
-      const user = await User.findOne({
-        where: { id: ctx.req.session.userId },
-      });
-
-      return user;
-    } catch (error) {
-      throw new Error(error);
-    }
+  me(@Ctx() { currentUser }: MyContext, @Info() info) {
+    info.cacheControl.setCacheHint({ maxAge: 300, scope: 'PRIVATE' });
+    return currentUser;
   }
 }

@@ -1,10 +1,8 @@
-import { getRepository } from 'typeorm';
-import { User } from './../../entity/User';
+import 'apollo-cache-control';
 import {
   Arg,
   Args,
   Ctx,
-  Directive,
   Field,
   FieldResolver,
   Mutation,
@@ -14,15 +12,16 @@ import {
   Root,
   UseMiddleware,
 } from 'type-graphql';
-
 import { Task } from '../../entity/Task';
-import { CreateTaskInput } from './createTaskInput';
 import { isAuth } from '../../middlewares/isAuth.middleware';
-import { MyContext } from '../../types/MyContext';
-import { queryBaseResolver } from '../baseQuery';
 import { PaginationArgs } from '../../shared/PaginationArgs';
+import { MyContext } from '../../types/MyContext';
+import { User } from './../../entity/User';
+import { CreateTaskInput } from './createTaskInput';
 
-const TaskBaseResolver = queryBaseResolver('Task', Task);
+// const TaskBaseResolver = queryBaseResolver('Task', Task);
+// export default class TaskResolver extends TaskBaseResolver {
+
 @ObjectType()
 class PaginatedTasks {
   @Field(() => [Task])
@@ -33,7 +32,7 @@ class PaginatedTasks {
 }
 
 @Resolver(Task)
-export default class TaskResolver extends TaskBaseResolver {
+export default class TaskResolver {
   // Solve N+1 problem by use join
   // @Query(() => [Task])
   // @UseMiddleware(isAuth)
@@ -55,6 +54,11 @@ export default class TaskResolver extends TaskBaseResolver {
   //   }
   //   return tasks;
   // }
+
+  @Query(() => Task)
+  getTaskById(@Arg('id') id: number, @Ctx() { models }) {
+    return models.Task.getById(id);
+  }
 
   @Mutation(() => Task)
   @UseMiddleware(isAuth)

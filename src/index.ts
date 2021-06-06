@@ -1,20 +1,23 @@
 import { BaseRedisCache } from 'apollo-server-cache-redis';
 import { ApolloServer, SchemaDirectiveVisitor } from 'apollo-server-express';
+import MongoStore from 'connect-mongo';
 import cors from 'cors';
-import express, { Application, Request, Response } from 'express';
+import express, { Application, request, Request, Response } from 'express';
 import session from 'express-session';
+import responseCachePlugin from 'apollo-server-plugin-response-cache';
+
 import 'reflect-metadata';
 import { createConnection } from 'typeorm';
-import MongoStore from 'connect-mongo';
 import { COOKIE_NAME } from './config/constant';
 import { PORT, __prod__ } from './config/vars';
+import OnlyAdminDirective from './directives/onlyAdmin';
 import { User } from './entity/User';
+import { generateTaskModel } from './models/Task';
+import { generateUserModel } from './models/User';
 import { redis } from './redis';
 import { createSchema } from './utils/createSchema';
 import { createUserLoader } from './utils/createUserLoader';
-import OnlyAdminDirective from './directives/onlyAdmin';
-import { generateTaskModel } from './models/Task';
-import { generateUserModel } from './models/User';
+import { MyContext } from './types/MyContext';
 
 declare module 'express-session' {
   export interface SessionData {
@@ -46,6 +49,7 @@ const main = async () => {
     schemaDirectives: {
       onlyAdmin: OnlyAdminDirective,
     },
+
     context: async ({ req, res }: any) => {
       const currentUser = await User.findOne({
         where: {
@@ -71,6 +75,13 @@ const main = async () => {
     // Ko muon hien thi error va debug cho End-User
     tracing: !__prod__,
     debug: !__prod__,
+    plugins: [
+      responseCachePlugin({
+        sessionId: (requestContext) => {
+          return requestContext?.request?.http?.headers.get('cookie') || null;
+        },
+      }),
+    ],
     // introspection: true,
   });
 
