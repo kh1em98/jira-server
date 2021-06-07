@@ -12,6 +12,7 @@ import { COOKIE_NAME } from './config/constant';
 import { PORT, __prod__ } from './config/vars';
 import OnlyAdminDirective from './directives/onlyAdmin';
 import { User } from './entity/User';
+import { graphqlUploadExpress } from 'graphql-upload';
 import { generateTaskModel } from './models/Task';
 import { generateUserModel } from './models/User';
 import { redis } from './redis';
@@ -82,6 +83,7 @@ const main = async () => {
         },
       }),
     ],
+    uploads: false,
     // introspection: true,
   });
 
@@ -138,6 +140,11 @@ const main = async () => {
 
     next();
   });
+
+  app.use(
+    '/graphql',
+    graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }),
+  );
 
   apolloServer.applyMiddleware({ app, cors: false });
 

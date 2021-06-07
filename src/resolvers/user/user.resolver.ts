@@ -1,4 +1,3 @@
-import { Role, User } from './../../entity/User';
 import {
   Arg,
   Ctx,
@@ -10,10 +9,9 @@ import {
   Root,
   UseMiddleware,
 } from 'type-graphql';
-
-import { MyContext } from '../../types/MyContext';
-import { queryBaseResolver } from '../baseQuery';
 import { isAuth } from '../../middlewares/isAuth.middleware';
+import { MyContext } from '../../types/MyContext';
+import { Role, User } from './../../entity/User';
 
 // const UserBaseResolver = queryBaseResolver('User', User);
 

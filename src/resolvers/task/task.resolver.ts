@@ -5,6 +5,7 @@ import {
   Ctx,
   Field,
   FieldResolver,
+  Info,
   Mutation,
   ObjectType,
   Query,
@@ -74,11 +75,14 @@ export default class TaskResolver {
     return userLoader.load(task.userId);
   }
 
+  @UseMiddleware(isAuth)
   @Query(() => PaginatedTasks)
   getAllTasks(
     @Args() { take, cursor }: PaginationArgs,
     @Ctx() { models }: MyContext,
+    @Info() info,
   ) {
+    info.cacheControl.setCacheHint({ maxAge: 180, scope: 'PUBLIC' });
     return models.Task.getAll(take, cursor);
   }
 
