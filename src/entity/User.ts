@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Task } from './Task';
+import { Board } from './Board';
 
 export enum Role {
   Admin = 'admin',
@@ -53,8 +54,13 @@ export class User extends BaseEntity {
   })
   image: string;
 
+  @Field(() => [Task])
   @OneToMany(() => Task, (task) => task.user)
   tasks: Task[];
+
+  @Field(() => [Board])
+  @OneToMany(() => Board, (board) => board.creator)
+  boards: Board[];
 
   @Field()
   @Column({

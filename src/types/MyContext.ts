@@ -1,9 +1,9 @@
 import { User } from './../entity/User';
 import { Request, Response } from 'express';
 import { createUserLoader } from '../utils/createUserLoader';
-import { createTaskLoader } from '../utils/createTaskLoader';
 import { generateUserModel } from '../models/User';
 import { generateTaskModel } from '../models/Task';
+import { generateBoardModel } from '../models/Board';
 
 export interface MyContext {
   req: Request;
@@ -13,5 +13,6 @@ export interface MyContext {
   models: {
     User: ReturnType<typeof generateUserModel>;
     Task: ReturnType<typeof generateTaskModel>;
+    Board: ReturnType<typeof generateBoardModel>;
   };
 }

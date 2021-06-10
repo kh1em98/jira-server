@@ -2,10 +2,11 @@ import bcrypt from 'bcrypt';
 import { omit } from 'lodash';
 import { Task } from '../entity/Task';
 import { RegisterInput } from '../resolvers/user/register/RegisterInput';
-import { getRepository } from 'typeorm';
+import { getConnection, getRepository } from 'typeorm';
 import { Role, User } from '../entity/User';
 import { EmailExistedError } from '../resolvers/user/register/Register.resolver';
 import { isAdmin } from './User';
+import { AuthenticationError, ForbiddenError } from 'apollo-server-express';
 
 enum CursorType {
   PREVIOUS = 'previous',
@@ -55,6 +56,26 @@ export const generateTaskModel = (currentUser: User | undefined) => ({
       hasMore: tasks.length === realLimitPlusOne,
     };
   },
+
+  getTasksFromBoard: async (boardId: number) => {
+    const creatorId = await getConnection().query(
+      `
+        select creatorId from public."board"
+        where id = $1
+      `,
+      [boardId],
+    );
+
+    if (creatorId !== currentUser?.id || !isAdmin(currentUser)) {
+      throw new ForbiddenError('no rights to access');
+    }
+
+    return Task.find({
+      where: {
+        boardId,
+      },
+    });
+  },
   getById: async (id: number) => {
     try {
       return await Task.findOne({
@@ -66,12 +87,25 @@ export const generateTaskModel = (currentUser: User | undefined) => ({
       throw new Error(error);
     }
   },
-  create: async ({ title, description }) => {
+
+  getTasksFromUser: async (userId) => {
+    try {
+      return await Task.find({
+        where: {
+          userId,
+        },
+      });
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
+  create: async ({ title, description, boardId }) => {
     try {
       const task = await Task.create({
         title,
         description,
         userId: currentUser?.id,
+        boardId,
       }).save();
 
       return task;

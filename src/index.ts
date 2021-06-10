@@ -2,23 +2,23 @@ import { BaseRedisCache } from 'apollo-server-cache-redis';
 import { ApolloServer, SchemaDirectiveVisitor } from 'apollo-server-express';
 import MongoStore from 'connect-mongo';
 import cors from 'cors';
-import express, { Application, request, Request, Response } from 'express';
+import express, { Application, Request, Response } from 'express';
 import session from 'express-session';
 import responseCachePlugin from 'apollo-server-plugin-response-cache';
 
 import 'reflect-metadata';
-import { createConnection } from 'typeorm';
+import { createConnection, getConnection } from 'typeorm';
 import { COOKIE_NAME } from './config/constant';
 import { PORT, __prod__ } from './config/vars';
 import OnlyAdminDirective from './directives/onlyAdmin';
 import { User } from './entity/User';
-import { graphqlUploadExpress } from 'graphql-upload';
 import { generateTaskModel } from './models/Task';
 import { generateUserModel } from './models/User';
 import { redis } from './redis';
 import { createSchema } from './utils/createSchema';
 import { createUserLoader } from './utils/createUserLoader';
-import { MyContext } from './types/MyContext';
+import { ApolloServerLoaderPlugin } from 'type-graphql-dataloader';
+import { generateBoardModel } from './models/Board';
 
 declare module 'express-session' {
   export interface SessionData {
@@ -66,6 +66,7 @@ const main = async () => {
         models: {
           User: generateUserModel(currentUser),
           Task: generateTaskModel(currentUser),
+          Board: generateBoardModel(currentUser),
         },
       };
     },
@@ -83,7 +84,6 @@ const main = async () => {
         },
       }),
     ],
-    uploads: false,
     // introspection: true,
   });
 
@@ -143,7 +143,7 @@ const main = async () => {
 
   app.use(
     '/graphql',
-    graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }),
+    graphqlUploadExpress({ maxFileSize: 2000000000, maxFiles: 10 }),
   );
 
   apolloServer.applyMiddleware({ app, cors: false });

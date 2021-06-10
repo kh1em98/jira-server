@@ -1,6 +1,6 @@
 import { Field, ObjectType } from 'type-graphql';
 import { User } from './User';
-import { Board } from './Board';
+import { Task } from './Task';
 
 import {
   Entity,
@@ -10,12 +10,14 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  RelationId,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 
 @ObjectType()
 @Entity()
-export class Task extends BaseEntity {
+export class Board extends BaseEntity {
   @Field()
   @PrimaryGeneratedColumn()
   id: number;
@@ -24,25 +26,22 @@ export class Task extends BaseEntity {
   @Column()
   title: string;
 
-  @Field({ nullable: true })
-  @Column({ nullable: true })
-  description: string;
+  @Field(() => [Task], { nullable: true })
+  @OneToMany(() => Task, (task) => task.board)
+  tasks: Task[];
 
   @Field(() => User)
-  @ManyToOne(() => User, (user) => user.tasks)
-  user: User;
+  @ManyToOne(() => User, (user) => user.boards)
+  creator: User;
 
   @Field()
   @Column()
-  userId: number;
+  creatorId: number;
 
-  @Field()
-  @ManyToOne(() => Board, (board) => board.tasks)
-  board: Board;
-
-  @Field()
-  @RelationId((task: Task) => task.board)
-  boardId: number;
+  @Field(() => [User])
+  @ManyToMany(() => User)
+  @JoinTable()
+  assigners: User[];
 
   @Field(() => String)
   @CreateDateColumn()

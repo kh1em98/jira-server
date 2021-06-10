@@ -7,4 +7,7 @@ export class CreateTaskInput {
 
   @Field({ nullable: true })
   description: string;
+
+  @Field()
+  boardId: number;
 }

@@ -1,3 +1,4 @@
+import { Role, User } from './../../entity/User';
 import {
   Arg,
   Ctx,
@@ -9,9 +10,15 @@ import {
   Root,
   UseMiddleware,
 } from 'type-graphql';
-import { isAuth } from '../../middlewares/isAuth.middleware';
+
 import { MyContext } from '../../types/MyContext';
+<<<<<<< HEAD
 import { Role, User } from './../../entity/User';
+import { Task } from '../../entity/Task';
+=======
+import { queryBaseResolver } from '../baseQuery';
+import { isAuth } from '../../middlewares/isAuth.middleware';
+>>>>>>> parent of 4451fbf... upload file, multiple files to s3
 
 // const UserBaseResolver = queryBaseResolver('User', User);
 
@@ -20,7 +27,7 @@ import { Role, User } from './../../entity/User';
 export default class UserResolver {
   @FieldResolver(() => String)
   email(@Root() user: User, @Ctx() { req, currentUser }: MyContext) {
-    if (req.session.userId === user.id || currentUser?.role === Role.Admin) {
+    if (user.id === currentUser?.id || currentUser?.role === Role.Admin) {
       return user.email;
     }
     return '';
@@ -32,6 +39,11 @@ export default class UserResolver {
       return user.password;
     }
     return '';
+  }
+
+  @FieldResolver(() => [Task])
+  tasks(@Root() user: User, @Ctx() { models }: MyContext) {
+    return models.Task.getTasksFromUser(user.id);
   }
 
   @UseMiddleware(isAuth)

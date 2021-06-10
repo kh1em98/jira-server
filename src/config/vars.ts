@@ -15,7 +15,4 @@ export const PORT = process.env.PORT;
 export const DOCKER_DEV_REDIS_HOST = process.env.DOCKER_DEV_REDIS_HOST;
 export const DOCKER_DEV_DB_HOST = process.env.DOCKER_DEV_DB_HOST;
 
-export const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;
-export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY;
-
 export const __prod__ = process.env.NODE_ENV === 'production';
