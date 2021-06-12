@@ -19,6 +19,7 @@ import { createSchema } from './utils/createSchema';
 import { createUserLoader } from './utils/createUserLoader';
 import { ApolloServerLoaderPlugin } from 'type-graphql-dataloader';
 import { generateBoardModel } from './models/Board';
+import { graphqlUploadExpress } from 'graphql-upload';
 
 declare module 'express-session' {
   export interface SessionData {
@@ -84,6 +85,7 @@ const main = async () => {
         },
       }),
     ],
+    uploads: false,
     // introspection: true,
   });
 

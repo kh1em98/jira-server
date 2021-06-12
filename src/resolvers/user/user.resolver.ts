@@ -12,13 +12,9 @@ import {
 } from 'type-graphql';
 
 import { MyContext } from '../../types/MyContext';
-<<<<<<< HEAD
-import { Role, User } from './../../entity/User';
 import { Task } from '../../entity/Task';
-=======
 import { queryBaseResolver } from '../baseQuery';
 import { isAuth } from '../../middlewares/isAuth.middleware';
->>>>>>> parent of 4451fbf... upload file, multiple files to s3
 
 // const UserBaseResolver = queryBaseResolver('User', User);
 

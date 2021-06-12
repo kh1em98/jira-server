@@ -11,8 +11,9 @@ declare namespace NodeJS {
     DB_PORT: string;
     DOCKER_DEV_REDIS_HOST: string;
     DOCKER_DEV_DB_HOST: string;
-    AWS_ACCESS_KEY: string;
-    AWS_SECRET_ACCESS_KEY: string;
     BUCKET: string;
+    REGION: string;
+    AWS_ACCESS_KEY: string;
+    AWS_SECRET_KEY: string;
   }
 }
