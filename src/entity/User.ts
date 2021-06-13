@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Task } from './Task';
 import { Board } from './Board';
+import { Comment } from './Comment';
 
 export enum Role {
   Admin = 'admin',
@@ -55,8 +56,12 @@ export class User extends BaseEntity {
   image: string;
 
   @Field(() => [Task])
-  @OneToMany(() => Task, (task) => task.user)
+  @OneToMany(() => Task, (task) => task.creator)
   tasks: Task[];
+
+  @Field(() => [Comment])
+  @OneToMany(() => Comment, (comment) => comment.creator)
+  comments: Comment[];
 
   @Field(() => [Board])
   @OneToMany(() => Board, (board) => board.creator)
@@ -66,7 +71,7 @@ export class User extends BaseEntity {
   @Column({
     default: false,
   })
-  verified: boolean;
+  emailVerified: boolean;
 
   @Field(() => Role)
   @Column({

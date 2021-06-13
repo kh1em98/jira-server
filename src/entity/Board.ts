@@ -34,10 +34,6 @@ export class Board extends BaseEntity {
   @ManyToOne(() => User, (user) => user.boards)
   creator: User;
 
-  @Field()
-  @Column()
-  creatorId: number;
-
   @Field(() => [User])
   @ManyToMany(() => User)
   @JoinTable()
