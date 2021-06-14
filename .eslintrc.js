@@ -16,6 +16,7 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
+    '@typescript-eslint/no-namespace': 'off',
     'no-console': process.env.NODE_ENV === 'production' ? 0 : 0,
     '@typescript-eslint/no-unused-vars':
       process.env.NODE_ENV === 'production' ? 1 : 0,

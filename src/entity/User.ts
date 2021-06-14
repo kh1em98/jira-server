@@ -1,3 +1,4 @@
+import { Role } from './../config/constant';
 import { Directive, Field, ObjectType, registerEnumType } from 'type-graphql';
 import {
   BaseEntity,
@@ -11,11 +12,6 @@ import {
 import { Task } from './Task';
 import { Board } from './Board';
 import { Comment } from './Comment';
-
-export enum Role {
-  Admin = 'admin',
-  User = 'user',
-}
 
 registerEnumType(Role, {
   name: 'Role', // this one is mandatory
