@@ -11,6 +11,8 @@ import {
   UpdateDateColumn,
   ManyToOne,
   RelationId,
+  JoinTable,
+  ManyToMany,
 } from 'typeorm';
 
 @ObjectType()
@@ -39,6 +41,11 @@ export class Task extends BaseEntity {
   @Field()
   @ManyToOne(() => Board, (board) => board.tasks)
   board: Board;
+
+  @Field(() => [User])
+  @ManyToMany(() => User)
+  @JoinTable()
+  assigners: Promise<User[]>;
 
   @Field()
   @RelationId((task: Task) => task.board)

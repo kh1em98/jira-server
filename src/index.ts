@@ -1,25 +1,24 @@
 import { BaseRedisCache } from 'apollo-server-cache-redis';
 import { ApolloServer, SchemaDirectiveVisitor } from 'apollo-server-express';
-import MongoStore from 'connect-mongo';
+import connectRedis from 'connect-redis';
 import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
 import session from 'express-session';
-import responseCachePlugin from 'apollo-server-plugin-response-cache';
-
+import { graphqlUploadExpress } from 'graphql-upload';
+import { createServer } from 'http';
 import 'reflect-metadata';
-import { createConnection, getConnection } from 'typeorm';
+import { createConnection } from 'typeorm';
 import { COOKIE_NAME } from './config/constant';
 import { PORT, __prod__ } from './config/vars';
 import OnlyAdminDirective from './directives/onlyAdmin';
 import { User } from './entity/User';
+import { generateBoardModel } from './models/Board';
 import { generateTaskModel } from './models/Task';
 import { generateUserModel } from './models/User';
 import { redis } from './redis';
 import { createSchema } from './utils/createSchema';
 import { createUserLoader } from './utils/createUserLoader';
-import { ApolloServerLoaderPlugin } from 'type-graphql-dataloader';
-import { generateBoardModel } from './models/Board';
-import { graphqlUploadExpress } from 'graphql-upload';
+import { getCookieProp, logTimeRequest } from './utils/helper';
 
 declare module 'express-session' {
   export interface SessionData {
@@ -28,6 +27,7 @@ declare module 'express-session' {
   }
 }
 
+const RedisStore = connectRedis(session);
 const connectDbWithRetry = () => {
   createConnection()
     .then(async (conn) => {
@@ -52,25 +52,31 @@ const main = async () => {
       onlyAdmin: OnlyAdminDirective,
     },
 
-    context: async ({ req, res }: any) => {
-      const currentUser = await User.findOne({
-        where: {
-          id: req.session?.userId,
-        },
-      });
+    context: async ({ req, res, connection }: any) => {
+      if (connection) {
+        console.log('connection context : ', connection.context);
+        return connection.context;
+      } else {
+        const currentUser = await User.findOne({
+          where: {
+            id: req.session?.userId,
+          },
+        });
 
-      return {
-        req,
-        res,
-        currentUser,
-        userLoader: createUserLoader(),
-        models: {
-          User: generateUserModel(currentUser),
-          Task: generateTaskModel(currentUser),
-          Board: generateBoardModel(currentUser),
-        },
-      };
+        return {
+          req,
+          res,
+          currentUser,
+          userLoader: createUserLoader(),
+          models: {
+            User: generateUserModel(currentUser),
+            Task: generateTaskModel(currentUser),
+            Board: generateBoardModel(currentUser),
+          },
+        };
+      }
     },
+
     // Trong trường hợp server có nhiều instance, cần có shared cache để instance này có thể lấy cache của instance kia
     cache: new BaseRedisCache({
       client: redis,
@@ -78,14 +84,32 @@ const main = async () => {
     // Ko muon hien thi error va debug cho End-User
     tracing: !__prod__,
     debug: !__prod__,
-    plugins: [
-      responseCachePlugin({
-        sessionId: (requestContext) => {
-          return requestContext?.request?.http?.headers.get('cookie') || null;
-        },
-      }),
-    ],
+    // plugins: [
+    //   responseCachePlugin({
+    //     sessionId: (requestContext) => {
+    //       return requestContext?.request?.http?.headers.get('cookie') || null;
+    //     },
+    //   }),
+    // ],
     uploads: false,
+    subscriptions: {
+      path: '/subscriptions',
+      onConnect: async (cnxnParams, webSocket, cnxnContext) => {
+        const cookieFromRequest = (webSocket as any).upgradeReq.headers.cookie;
+
+        const sid = getCookieProp(cookieFromRequest, 'sid');
+        try {
+          let result = await redis.get(`sess:${sid}`);
+          result = JSON.parse(result as any);
+
+          return {
+            currentUserId: (result as any).userId,
+          };
+        } catch (error) {
+          return {};
+        }
+      },
+    },
     // introspection: true,
   });
 
@@ -104,12 +128,11 @@ const main = async () => {
 
   app.use(
     session({
-      store: MongoStore.create({
-        mongoUrl: 'mongodb://localhost:27017/social',
-        touchAfter: 24 * 3600,
+      store: new RedisStore({
+        client: redis as any,
       }),
       name: COOKIE_NAME,
-      secret: 'aslkdfjoiq12312',
+      secret: process.env.SECRET,
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -121,27 +144,7 @@ const main = async () => {
     }),
   );
 
-  app.use('/graphql', (req, res, next) => {
-    const startHrTime = process.hrtime();
-    res.on('finish', () => {
-      if (req.body && req.body.query) {
-        if (req.body.operationName !== 'IntrospectionQuery') {
-          const splitedQuery = req.body.query.split(' ');
-          const opName = splitedQuery[2] + ' ' + splitedQuery[3];
-          const elapsedHrTime = process.hrtime(startHrTime);
-          const elapsedTimeInMs =
-            elapsedHrTime[0] * 1000 + elapsedHrTime[1] / 1e6;
-          console.log({
-            type: 'timing',
-            name: opName,
-            ms: elapsedTimeInMs,
-          });
-        }
-      }
-    });
-
-    next();
-  });
+  app.use('/graphql', logTimeRequest);
 
   app.use(
     '/graphql',
@@ -154,7 +157,10 @@ const main = async () => {
     res.status(404).send('Not found');
   });
 
-  app.listen(PORT, async () => {
+  const httpServer = createServer(app);
+  apolloServer.installSubscriptionHandlers(httpServer);
+
+  httpServer.listen(PORT, async () => {
     console.log(`server started on http://localhost:${PORT}/graphql`);
   });
 };

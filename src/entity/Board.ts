@@ -41,7 +41,7 @@ export class Board extends BaseEntity {
   @Field(() => [User])
   @ManyToMany(() => User)
   @JoinTable()
-  assigners: User[];
+  joiners: User[];
 
   @Field(() => String)
   @CreateDateColumn()

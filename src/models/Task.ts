@@ -2,11 +2,19 @@ import bcrypt from 'bcrypt';
 import { omit } from 'lodash';
 import { Task } from '../entity/Task';
 import { RegisterInput } from '../resolvers/user/register/RegisterInput';
-import { getConnection, getRepository } from 'typeorm';
+import {
+  getConnection,
+  getManager,
+  getRepository,
+  createConnection,
+} from 'typeorm';
 import { Role, User } from '../entity/User';
 import { EmailExistedError } from '../resolvers/user/register/Register.resolver';
 import { isAdmin } from './User';
 import { AuthenticationError, ForbiddenError } from 'apollo-server-express';
+import { UnauthorizedError } from 'type-graphql';
+import { Connection } from 'typeorm';
+import { pubsubRedis } from '../utils/createSchema';
 
 enum CursorType {
   PREVIOUS = 'previous',
@@ -60,7 +68,7 @@ export const generateTaskModel = (currentUser: User | undefined) => ({
   getTasksFromBoard: async (boardId: number) => {
     const creatorId = await getConnection().query(
       `
-        select creatorId from public."board"
+        select creatorId from  lic."board"
         where id = $1
       `,
       [boardId],
@@ -99,14 +107,55 @@ export const generateTaskModel = (currentUser: User | undefined) => ({
       throw new Error(error);
     }
   },
+
+  async assignTaskToUser({ taskId, userId }) {
+    try {
+      const findTask = Task.findOne({
+        where: {
+          id: taskId,
+        },
+      });
+
+      const findUser = User.findOne({
+        where: {
+          id: userId,
+        },
+      });
+
+      const task = await findTask;
+      const user = await findUser;
+
+      if (task && user) {
+        const connection = await getConnection();
+        const result = await connection
+          .createQueryBuilder()
+          .relation(Task, 'assigners')
+          .of(task)
+          .add(userId);
+
+        console.log(`publish USER-${userId}-BE-ASSIGNED`);
+
+        await pubsubRedis.publish(`USER-${userId}-BE-ASSIGNED`, task);
+
+        return task;
+      }
+      throw new Error("can't find user or task");
+    } catch (error) {
+      console.log('assign error : ', error);
+      throw new UnauthorizedError();
+    }
+  },
   create: async ({ title, description, boardId }) => {
     try {
-      const task = await Task.create({
-        title,
-        description,
-        userId: currentUser?.id,
-        boardId,
-      }).save();
+      const task = new Task();
+
+      Object.assign(task, { title, description, boardId });
+
+      task.userId = currentUser?.id || 11;
+      task.assigners = Promise.resolve([]);
+
+      const connection = await getConnection();
+      await connection.manager.save(task);
 
       return task;
     } catch (error) {

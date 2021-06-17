@@ -66,7 +66,7 @@ export const generateBoardModel = (currentUser: User | undefined) => ({
     const board = new Board();
     board.title = title;
     board.creator = currentUser;
-    board.assigners = [currentUser];
+    board.joiners = [currentUser];
 
     const entityManager = getManager();
     await entityManager.save(board);

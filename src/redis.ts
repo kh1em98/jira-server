@@ -8,3 +8,6 @@ export const redis = new Redis({
   port: parseInt(redisPort, 10),
   host: redisHost,
 });
+
+export const redisSub = new Redis();
+export const redisPub = new Redis();

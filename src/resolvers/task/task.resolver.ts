@@ -7,9 +7,12 @@ import {
   FieldResolver,
   Mutation,
   ObjectType,
+  PubSub,
+  PubSubEngine,
   Query,
   Resolver,
   Root,
+  Subscription,
   UseMiddleware,
 } from 'type-graphql';
 import { Task } from '../../entity/Task';
@@ -18,6 +21,10 @@ import { PaginationArgs } from '../../shared/PaginationArgs';
 import { MyContext } from '../../types/MyContext';
 import { User } from './../../entity/User';
 import { CreateTaskInput } from './createTaskInput';
+import { getManager } from 'typeorm';
+import { UnauthorizedError } from 'type-graphql';
+import { redisSub } from '../../redis';
+import { pubsubRedis } from '../../utils/createSchema';
 
 // const TaskBaseResolver = queryBaseResolver('Task', Task);
 // export default class TaskResolver extends TaskBaseResolver {
@@ -66,12 +73,42 @@ export default class TaskResolver {
     @Arg('input') { title, description, boardId }: CreateTaskInput,
     @Ctx() { models }: MyContext,
   ) {
-    return models.Task.create({ title, description, boardId });
+    const task = await models.Task.create({ title, description, boardId });
+
+    return task;
+  }
+
+  @Mutation(() => Task)
+  @UseMiddleware(isAuth)
+  async assignTaskForUser(
+    @Arg('userId') userId: number,
+    @Arg('taskId') taskId: number,
+    @Ctx() { models }: MyContext,
+  ) {
+    return models.Task.assignTaskToUser({ userId, taskId });
   }
 
   @FieldResolver(() => User)
   user(@Root() task: Task, @Ctx() { userLoader }: MyContext) {
     return userLoader.load(task.userId);
+  }
+
+  @FieldResolver(() => User)
+  async assigners(@Root() task: Task, @Ctx() { userLoader }: MyContext) {
+    const manger = getManager();
+
+    const assignerIds = await manger.query(
+      `
+      select "userId" 
+      from public."task_assigners_user"
+      where "taskId" = $1
+    `,
+      [task.id],
+    );
+
+    console.log('assigners id : ', assignerIds);
+
+    return userLoader.loadMany(assignerIds);
   }
 
   @Query(() => PaginatedTasks)
@@ -85,5 +122,16 @@ export default class TaskResolver {
   @Mutation(() => Boolean)
   deleteTaskById(@Arg('id') id: number, @Ctx() { models }: MyContext) {
     return models.Task.deleteById(id);
+  }
+
+  @Subscription({
+    subscribe: (root, args, context, info) => {
+      return pubsubRedis.asyncIterator([
+        `USER-${context.currentUserId}-BE-ASSIGNED`,
+      ]);
+    },
+  })
+  meBeAssigned(@Root() payload: Task): Task {
+    return payload;
   }
 }
