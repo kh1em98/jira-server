@@ -68,7 +68,7 @@ export const generateTaskModel = (currentUser: User | undefined) => ({
   getTasksFromBoard: async (boardId: number) => {
     const creatorId = await getConnection().query(
       `
-        select creatorId from  lic."board"
+        select creatorId from public."board"
         where id = $1
       `,
       [boardId],
